@@ -6,7 +6,7 @@
 ##
 ## Description:
 ## ------------
-## 
+##
 ## This tool is used to trace all memory access. With this tool, you know
 ## which instruction read and write in memory, where it read/write,
 ## the access' size and the value. May be useful to track quickly some
@@ -15,7 +15,7 @@
 ## Output:
 ## -------
 ##
-## $ ../../../pin -t ./triton.so -script ./tools/memory_tracer.py -- ./samples/vulns/testSuite
+## $ ./triton ./tools/memory_tracer.py ./samples/vulns/testSuite
 ## [...]
 ## [R:4] 0x0000004005fa: mov eax, dword ptr [rbp-0x8]      R:0x00007fff51aa7c08: 04 00 00 00 (0x4)
 ## [W:1] 0x000000400606: mov byte ptr [rax], 0x45          W:0x00007fff51aa7c08: 45 (0x45)
@@ -37,7 +37,7 @@
 ## [W:8] 0x7f9bdd0e7899: push rbx                          W:0x00007fff51aa7be8: 00 00 00 00 00 00 00 00 (0x0)
 ## [R:8] 0x7f9bdd0e78a1: mov rax, qword ptr [rsi+0x8]      R:0x000000000173b038: 31 00 00 00 00 00 00 00 (0x31)
 ## [...]
-## 
+##
 
 from triton import *
 
@@ -47,15 +47,15 @@ def dump(opType, instruction, operand):
     opAccess         = 'R' if opType == IDREF.OPERAND.MEM_R else 'W'
     memoryAccess     = operand.value
     memoryAccessSize = operand.size
-    
+
     a = str()
     d = '[%c:%d] 0x%016x: %s' %(opAccess, memoryAccessSize, instruction.address, instruction.assembly)
-    
+
     if checkReadAccess(memoryAccess):
         a = '%c:0x%016x:' %(opAccess, memoryAccess)
         for i in range(memoryAccessSize):
             a += ' %02x' %(getMemValue(memoryAccess+i, 1))
-    
+
     print '%s%s%s (%#x)' %(d, ' '*(70-len(d)), a, getMemValue(memoryAccess, memoryAccessSize))
     return
 

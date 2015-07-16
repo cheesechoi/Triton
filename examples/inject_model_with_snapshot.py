@@ -1,5 +1,5 @@
 
-# $ ../../../pin -t ./triton.so -script ./examples/inject_model_with_snapshot.py -- ./samples/crackmes/crackme_xor a
+# $ ./triton ./examples/inject_model_with_snapshot.py ./samples/crackmes/crackme_xor a
 # [+] Take a snapshot at the prologue of the function
 # [+] Still not the good password. Restore snapshot.
 # [+] Inject the character 'e' in memory
@@ -45,13 +45,12 @@ def cafter(instruction):
 
     # 0x40058b: movzx eax, byte ptr [rax]
     if instruction.address == 0x40058b:
-        raxId = getRegSymbolicID(IDREF.REG.RAX)
-        convertExprToSymVar(raxId, 4)
+        convertRegToSymVar(IDREF.REG.RAX, 32)
 
     # 0x4005ae: cmp ecx, eax
     if instruction.address == 0x4005ae:
         zfId    = getRegSymbolicID(IDREF.FLAG.ZF)
-        zfExpr  = getBacktrackedSymExpr(zfId)
+        zfExpr  = getFullExpression(getSymExpr(zfId).getAst())
         expr    = smt2lib.smtAssert(smt2lib.equal(zfExpr, smt2lib.bvtrue())) # (assert (= zf True))
         models  = getModel(expr)
         global password
@@ -65,7 +64,7 @@ def cbefore(instruction):
 
     # Prologue of the function
     global snapshot
-    if instruction.address == 0x40056d and isSnapshotEnable() == False:
+    if instruction.address == 0x40056d and isSnapshotEnabled() == False:
         takeSnapshot()
         print '[+] Take a snapshot at the prologue of the function'
         return

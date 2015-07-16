@@ -5,25 +5,25 @@
 #include <CdqeIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-CdqeIRBuilder::CdqeIRBuilder(uint64_t address, const std::string &disassembly):
+CdqeIRBuilder::CdqeIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
 void CdqeIRBuilder::none(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RAX, REG_SIZE, 31, 0);
+  op1 = ap.buildSymbolicRegOperand(ID_RAX, REG_SIZE, 31, 0);
 
   /* Finale expr */
-  expr << smt2lib::sx(op1.str(), 32);
+  expr = smt2lib::sx(32, op1);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RAX, REG_SIZE);
 
   /* Apply the taint */
@@ -38,7 +38,7 @@ Inst *CdqeIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "CDQE");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {

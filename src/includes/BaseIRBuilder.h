@@ -16,18 +16,23 @@
 class BaseIRBuilder: public IRBuilder {
   public:
     // Constructor take the two main informations of an instruction.
-    BaseIRBuilder(uint64_t address, const std::string &disassembly);
+    BaseIRBuilder(uint64 address, const std::string &disassembly);
 
     virtual bool                isBranch(void);
     virtual const std::string   &getDisassembly(void) const;
-    virtual int32_t             getOpcodeCategory(void);
-    virtual uint32_t            getOpcode(void) const;
-    virtual uint64_t            getAddress(void) const;
-    virtual uint64_t            getThreadID(void) const;
-    virtual void                setNextAddress(uint64_t nextAddr);
-    virtual void                setOpcode(uint32_t op);
-    virtual void                setOpcodeCategory(int32_t category);
-    virtual void                setThreadID(uint64_t threadId);
+    virtual const std::string   &getImageName(void) const;
+    virtual const std::string   &getRoutineName(void) const;
+    virtual const std::string   &getSectionName(void) const;
+    virtual sint32              getOpcodeCategory(void) const;
+    virtual uint32              getOpcode(void) const;
+    virtual uint64              getAddress(void) const;
+    virtual uint64              getThreadID(void) const;
+    virtual uint64              getBaseAddress(void) const;
+    virtual uint64              getOffset(void) const;
+    virtual void                setNextAddress(uint64 nextAddr);
+    virtual void                setOpcode(uint32 op);
+    virtual void                setOpcodeCategory(sint32 category);
+    virtual void                setThreadID(uint64 threadId);
 
 
     virtual const std::vector<TritonOperand> &getOperands(void) const;
@@ -40,19 +45,24 @@ class BaseIRBuilder: public IRBuilder {
     //    The object will need a setup before any processing.
     virtual void addOperand(const TritonOperand &operand);
 
-    virtual void setup(uint64_t mem_value);
+    virtual void setup(uint64 mem_value);
 
     virtual void checkSetup() const;
 
   protected:
-    uint32_t                    opcode;
-    uint64_t                    address;
-    uint64_t                    nextAddress;
-    std::string                 disas;
     bool                        needSetup;
-    int32_t                     opcodeCategory;
-    uint64_t                    threadId;
+    sint32                      opcodeCategory;
+    std::string                 disas;
+    std::string                 imageName;
+    std::string                 routineName;
+    std::string                 sectionName;
     std::vector<TritonOperand>  operands;
+    uint32                      opcode;
+    uint64                      address;
+    uint64                      baseAddress;
+    uint64                      nextAddress;
+    uint64                      offset;
+    uint64                      threadId;
 };
 
 #endif // BASEIRBUILDER_H

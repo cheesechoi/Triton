@@ -7,12 +7,17 @@
 #include <xPyFunc.h>
 
 void initCallbackEnv(PyObject *);
+void initCpuSizeEnv(PyObject *);
 void initFlagEnv(PyObject *);
+void initMiscEnv(PyObject *);
 void initOpcodeCategoryEnv(PyObject *);
 void initOpcodeEnv(PyObject *);
 void initOperandEnv(PyObject *);
 void initRegEnv(PyObject *);
+void initSmtAstNodeEnv(PyObject *);
+void initSymVarEnv(PyObject *);
 void initSyscallEnv(PyObject *);
+void initVersionEnv(PyObject *);
 
 
 void initBindings(void)
@@ -40,19 +45,34 @@ void initBindings(void)
   PyObject *idRefClassDict = xPyDict_New();
 
 
-  // REG ---------------------
+  // CALLBACK ---------------------
 
-  /* Create the IDREF.REG class */
-  PyObject *idRegClassName = xPyString_FromString("REG");
-  PyObject *idRegClassDict = xPyDict_New();
+  /* Create the IDREF.CALLBACK class */
+  PyObject *idCallbackClassName = xPyString_FromString("CALLBACK");
+  PyObject *idCallbackClassDict = xPyDict_New();
 
-  /* Add registers ref into IDREF.REG class */
-  initRegEnv(idRegClassDict);
+  /* Add registers ref into IDREF.CALLBACK class */
+  initCallbackEnv(idCallbackClassDict);
 
-  /* Create the REG class */
-  PyObject *idRegClass = xPyClass_New(nullptr, idRegClassDict, idRegClassName);
+  /* Create the CALLBACK class */
+  PyObject *idCallbackClass = xPyClass_New(nullptr, idCallbackClassDict, idCallbackClassName);
 
-  // REG ---------------------
+  // CALLBACK ---------------------
+
+
+  // CPUSIZE ---------------------
+
+  /* Create the IDREF.CPUSIZE class */
+  PyObject *idCpuSizeClassName = xPyString_FromString("CPUSIZE");
+  PyObject *idCpuSizeClassDict = xPyDict_New();
+
+  /* Add registers ref into IDREF.CPUSIZE class */
+  initCpuSizeEnv(idCpuSizeClassDict);
+
+  /* Create the CPUSIZE class */
+  PyObject *idCpuSizeClass = xPyClass_New(nullptr, idCpuSizeClassDict, idCpuSizeClassName);
+
+  // CPUSIZE ---------------------
 
 
   // FLAG ---------------------
@@ -68,6 +88,21 @@ void initBindings(void)
   PyObject *idFlagClass = xPyClass_New(nullptr, idFlagClassDict, idFlagClassName);
 
   // FLAG ---------------------
+
+
+  // MISC ---------------------
+
+  /* Create the IDREF.MISC class */
+  PyObject *idMiscClassName = xPyString_FromString("MISC");
+  PyObject *idMiscClassDict = xPyDict_New();
+
+  /* Add registers ref into IDREF.MISC class */
+  initMiscEnv(idMiscClassDict);
+
+  /* Create the MISC class */
+  PyObject *idMiscClass = xPyClass_New(nullptr, idMiscClassDict, idMiscClassName);
+
+  // MISC ---------------------
 
 
   // OPCODE ---------------------
@@ -115,19 +150,49 @@ void initBindings(void)
   // OPERAND ---------------------
 
 
-  // CALLBACK ---------------------
+  // REG ---------------------
 
-  /* Create the IDREF.CALLBACK class */
-  PyObject *idCallbackClassName = xPyString_FromString("CALLBACK");
-  PyObject *idCallbackClassDict = xPyDict_New();
+  /* Create the IDREF.REG class */
+  PyObject *idRegClassName = xPyString_FromString("REG");
+  PyObject *idRegClassDict = xPyDict_New();
 
-  /* Add registers ref into IDREF.CALLBACK class */
-  initCallbackEnv(idCallbackClassDict);
+  /* Add registers ref into IDREF.REG class */
+  initRegEnv(idRegClassDict);
 
-  /* Create the CALLBACK class */
-  PyObject *idCallbackClass = xPyClass_New(nullptr, idCallbackClassDict, idCallbackClassName);
+  /* Create the REG class */
+  PyObject *idRegClass = xPyClass_New(nullptr, idRegClassDict, idRegClassName);
 
-  // CALLBACK ---------------------
+  // REG ---------------------
+
+
+  // SmtAstNode ---------------------
+
+  /* Create the IDREF.SMT_AST_NODE class */
+  PyObject *idSmtAstNodeClassName = xPyString_FromString("SMT_AST_NODE");
+  PyObject *idSmtAstNodeClassDict = xPyDict_New();
+
+  /* Add registers ref into IDREF.SMT_AST_NODE class */
+  initSmtAstNodeEnv(idSmtAstNodeClassDict);
+
+  /* Create the SMT_AST_NODE class */
+  PyObject *idSmtAstNodeClass = xPyClass_New(nullptr, idSmtAstNodeClassDict, idSmtAstNodeClassName);
+
+  // SmtAstNode ---------------------
+
+
+  // SYMVAR ---------------------
+
+  /* Create the IDREF.SYMVAR class */
+  PyObject *idSymVarClassName = xPyString_FromString("SYMVAR");
+  PyObject *idSymVarClassDict = xPyDict_New();
+
+  /* Add registers ref into IDREF.SYMVAR class */
+  initSymVarEnv(idSymVarClassDict);
+
+  /* Create the SYMVAR class */
+  PyObject *idSymVarClass = xPyClass_New(nullptr, idSymVarClassDict, idSymVarClassName);
+
+  // SYMVAR ---------------------
 
 
   // SYSCALL ---------------------
@@ -145,22 +210,40 @@ void initBindings(void)
   // SYSCALL ---------------------
 
 
-  /* Add REG, FLAG, OPCODE, OPCODE_CATEGORY, OPERAND into IDREF */
+  // VERSION ---------------------
+
+  /* Create the IDREF.VERSION class */
+  PyObject *idVersionClassName = xPyString_FromString("VERSION");
+  PyObject *idVersionClassDict = xPyDict_New();
+
+  /* Add registers ref into IDREF.VERSION class */
+  initVersionEnv(idVersionClassDict);
+
+  /* Create the VERSION class */
+  PyObject *idVersionClass = xPyClass_New(nullptr, idVersionClassDict, idVersionClassName);
+
+  // VERSION ---------------------
+
+
+  /* Add all classes into IDREF */
   PyDict_SetItemString(idRefClassDict, "CALLBACK", idCallbackClass);
+  PyDict_SetItemString(idRefClassDict, "CPUSIZE", idCpuSizeClass);
   PyDict_SetItemString(idRefClassDict, "FLAG", idFlagClass);
+  PyDict_SetItemString(idRefClassDict, "MISC", idMiscClass);
   PyDict_SetItemString(idRefClassDict, "OPCODE", idOpcodeClass);
   PyDict_SetItemString(idRefClassDict, "OPCODE_CATEGORY", idOpcodeCategoryClass);
   PyDict_SetItemString(idRefClassDict, "OPERAND", idOperandClass);
   PyDict_SetItemString(idRefClassDict, "REG", idRegClass);
+  PyDict_SetItemString(idRefClassDict, "SMT_AST_NODE", idSmtAstNodeClass);
+  PyDict_SetItemString(idRefClassDict, "SYMVAR", idSymVarClass);
   PyDict_SetItemString(idRefClassDict, "SYSCALL", idSyscallClass);
+  PyDict_SetItemString(idRefClassDict, "VERSION", idVersionClass);
 
   /* Create the IDREF class */
   PyObject *idRefClass = xPyClass_New(nullptr, idRefClassDict, idRefClassName);
 
-
   /* add all classes and constants into the triton module */
   PyModule_AddObject(tritonModule, "IDREF", idRefClass);
-  PyModule_AddObject(tritonModule, "UNSET", Py_BuildValue("k", UNSET)); // Py_BuildValue for unsigned long
 }
 
 

@@ -5,26 +5,26 @@
 #include <CallIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-CallIRBuilder::CallIRBuilder(uint64_t address, const std::string &disassembly):
+CallIRBuilder::CallIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint64_t writeSize)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint64 writeSize)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression    *se;
+  smt2lib::smtAstAbstractNode   *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, writeSize);
-  op2 << smt2lib::bv(REG_SIZE, writeSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, writeSize);
+  op2 = smt2lib::bv(REG_SIZE, writeSize * REG_SIZE);
 
-  expr << smt2lib::bvsub(op1.str(), op2.str());
+  expr = smt2lib::bvsub(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -35,21 +35,21 @@ static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint64_t w
 
 
 void CallIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr1, expr2;
-  uint64_t          reg       = this->operands[0].getValue();
-  uint32_t          regSize   = this->operands[0].getSize();
-  uint64_t          memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32_t          writeSize = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr1, *expr2;
+  uint64 reg       = this->operands[0].getValue();
+  uint32 regSize   = this->operands[0].getSize();
+  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
+  uint32 writeSize = this->operands[1].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 << smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
 
   /* Apply the taint */
@@ -57,9 +57,9 @@ void CallIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
   /* Create the SMT semantic */
   /* RIP = reg */
-  expr2 << ap.buildSymbolicRegOperand(reg, regSize);
+  expr2 = ap.buildSymbolicRegOperand(reg, regSize);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr2, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
@@ -68,20 +68,20 @@ void CallIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void CallIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr1, expr2;
-  uint64_t          imm       = this->operands[0].getValue();
-  uint64_t          memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32_t          writeSize = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr1, *expr2;
+  uint64 imm       = this->operands[0].getValue();
+  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
+  uint32 writeSize = this->operands[1].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 << smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
 
   /* Apply the taint */
@@ -89,9 +89,9 @@ void CallIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 
   /* Create the SMT semantic */
   /* RIP = imm */
-  expr2 << smt2lib::bv(imm, writeSize * REG_SIZE);
+  expr2 = smt2lib::bv(imm, writeSize * REG_SIZE);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr2, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
@@ -100,21 +100,21 @@ void CallIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void CallIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr1, expr2;
-  uint64_t          mem       = this->operands[0].getValue();
-  uint64_t          memSize   = this->operands[0].getSize();
-  uint64_t          memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32_t          writeSize = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr1, *expr2;
+  uint64 mem       = this->operands[0].getValue();
+  uint64 memSize   = this->operands[0].getSize();
+  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
+  uint32 writeSize = this->operands[1].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 << smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
 
   /* Apply the taint */
@@ -122,9 +122,9 @@ void CallIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
 
   /* Create the SMT semantic */
   /* RIP = imm */
-  expr2 << ap.buildSymbolicMemOperand(mem, memSize);
+  expr2 = ap.buildSymbolicMemOperand(mem, memSize);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr2, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
@@ -144,7 +144,7 @@ Inst *CallIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "CALL");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
   }
   catch (std::exception &e) {
     delete inst;

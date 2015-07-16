@@ -1,7 +1,7 @@
 #ifndef IRBUILDER_H
 #define IRBUILDER_H
 
-#include <cstdint>
+#include "TritonTypes.h"
 
 #include <ostream>
 #include <string>
@@ -20,34 +20,49 @@ class IRBuilder {
     virtual ~IRBuilder() { }
 
     // Returns the opcode of the instruction.
-    virtual uint32_t getOpcode(void) const = 0;
+    virtual uint32 getOpcode(void) const = 0;
 
     // Returns the thread ID of the Irb.
-    virtual uint64_t getThreadID(void) const = 0;
+    virtual uint64 getThreadID(void) const = 0;
 
     // Set the opcode of the instruction.
-    virtual void setOpcode(uint32_t op) = 0;
+    virtual void setOpcode(uint32 op) = 0;
 
     // Set the next instruction address
-    virtual void setNextAddress(uint64_t nextAddr) = 0;
+    virtual void setNextAddress(uint64 nextAddr) = 0;
 
     // Set the opcode of the instruction.
-    virtual void setThreadID(uint64_t threadId) = 0;
+    virtual void setThreadID(uint64 threadId) = 0;
 
     // Set the opcode category.
-    virtual void setOpcodeCategory(int32_t category) = 0;
+    virtual void setOpcodeCategory(sint32 category) = 0;
 
     // Get the opcode category.
-    virtual int32_t getOpcodeCategory(void) = 0;
+    virtual sint32 getOpcodeCategory(void) const = 0;
 
     // Returns true or false if the instruction is branch.
     virtual bool isBranch(void) = 0;
 
     // Returns the address of the instruction.
-    virtual uint64_t getAddress(void) const = 0;
+    virtual uint64 getAddress(void) const = 0;
+
+    // Returns the base address.
+    virtual uint64 getBaseAddress(void) const = 0;
+
+    // Returns the offset of the instruction in the file.
+    virtual uint64 getOffset(void) const = 0;
 
     // Returns the assembler instruction.
     virtual const std::string &getDisassembly(void) const = 0;
+
+    // Returns the image name.
+    virtual const std::string &getImageName(void) const = 0;
+
+    // Returns the section name.
+    virtual const std::string &getSectionName(void) const = 0;
+
+    // Returns the routine name.
+    virtual const std::string &getRoutineName(void) const = 0;
 
     // Returns the operands vector.
     virtual const std::vector<TritonOperand> &getOperands(void) const = 0;
@@ -62,7 +77,7 @@ class IRBuilder {
 
     // Set the value for the MEM_* operand, if there is no such kind of operand
     // it does nothing.
-    virtual void setup(uint64_t mem_value) = 0;
+    virtual void setup(uint64 mem_value) = 0;
 
     // Check if the setup is done (when needed: i.e get the value for
     // MEM_* operands). If it is not, throws a runtime_error.

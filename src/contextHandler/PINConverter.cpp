@@ -1,7 +1,7 @@
 #include <PINConverter.h>
 
 
-uint64_t PINConverter::convertDBIReg2TritonReg(uint64_t regID){
+uint64 PINConverter::convertDBIReg2TritonReg(uint64 regID){
   switch(regID){
     case REG_RAX:
     case REG_EAX:
@@ -168,7 +168,7 @@ uint64_t PINConverter::convertDBIReg2TritonReg(uint64_t regID){
 /* Convert a Triton register to a Pin register.
  * Besides, it can return only 64 bits wised registers.
  */
-uint64_t PINConverter::convertTritonReg2DBIReg(uint64_t regID) {
+uint64 PINConverter::convertTritonReg2DBIReg(uint64 regID) {
   switch(regID){
     case ID_RAX:    return REG_RAX;
     case ID_RBX:    return REG_RBX;
@@ -206,6 +206,59 @@ uint64_t PINConverter::convertTritonReg2DBIReg(uint64_t regID) {
     case ID_XMM15:  return REG_XMM15;
     default:
       return REG_INVALID_;
+  }
+}
+
+/* Convert a Triton register to a string.
+ * Besides, it can return only 64 bits wised registers.
+ */
+std::string PINConverter::getRegisterName(uint64 regID) {
+  switch(regID){
+    case ID_RAX:    return "rax";
+    case ID_RBX:    return "rbx";
+    case ID_RCX:    return "rcx";
+    case ID_RDX:    return "rdx";
+    case ID_RDI:    return "rdi";
+    case ID_RSI:    return "rsi";
+    case ID_RBP:    return "rbp";
+    case ID_RSP:    return "rsp";
+    case ID_RIP:    return "rip";
+    case ID_R8:     return "r8";
+    case ID_R9:     return "r9";
+    case ID_R10:    return "r10";
+    case ID_R11:    return "r11";
+    case ID_R12:    return "r12";
+    case ID_R13:    return "r13";
+    case ID_R14:    return "r14";
+    case ID_R15:    return "r15";
+    case ID_RFLAGS: return "rflags";
+    case ID_XMM0:   return "xmm0";
+    case ID_XMM1:   return "xmm1";
+    case ID_XMM2:   return "xmm2";
+    case ID_XMM3:   return "xmm3";
+    case ID_XMM4:   return "xmm4";
+    case ID_XMM5:   return "xmm5";
+    case ID_XMM6:   return "xmm6";
+    case ID_XMM7:   return "xmm7";
+    case ID_XMM8:   return "xmm8";
+    case ID_XMM9:   return "xmm9";
+    case ID_XMM10:  return "xmm10";
+    case ID_XMM11:  return "xmm11";
+    case ID_XMM12:  return "xmm12";
+    case ID_XMM13:  return "xmm13";
+    case ID_XMM14:  return "xmm14";
+    case ID_XMM15:  return "xmm15";
+    case ID_AF:     return "af";
+    case ID_CF:     return "cf";
+    case ID_DF:     return "df";
+    case ID_IF:     return "if";
+    case ID_OF:     return "of";
+    case ID_PF:     return "pd";
+    case ID_SF:     return "sf";
+    case ID_TF:     return "tf";
+    case ID_ZF:     return "zf";
+    default:
+      return "invalid";
   }
 }
 

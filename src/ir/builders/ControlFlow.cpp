@@ -2,21 +2,21 @@
 
 #include <ControlFlow.h>
 #include <Registers.h>
+#include <SMT2Lib.h>
 
 
-
-SymbolicElement *ControlFlow::rip(Inst &inst, AnalysisProcessor &ap, uint64_t nextAddr)
+SymbolicExpression *ControlFlow::rip(Inst &inst, AnalysisProcessor &ap, uint64 nextAddr)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * RIP = nextAddress
    */
-  expr << smt2lib::bv(nextAddr, 64);
+  expr = smt2lib::bv(nextAddr, 64);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RIP, REG_SIZE, "RIP");
 
   return se;

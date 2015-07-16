@@ -4,25 +4,25 @@
 
 
 
-std::string EflagsExpressions::af(SymbolicElement *parent,
-                                  uint32_t bvSize,
-                                  std::stringstream &op1,
-                                  std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::af(SymbolicExpression *parent,
+                                                   uint32 bvSize,
+                                                   smt2lib::smtAstAbstractNode *op1,
+                                                   smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * af = 0x10 == (0x10 & (regDst ^ op1 ^ op2))
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
               smt2lib::bv(0x10, bvSize),
               smt2lib::bvand(
                 smt2lib::bv(0x10, bvSize),
                 smt2lib::bvxor(
-                  parent->getID2Str(),
-                  smt2lib::bvxor(op1.str(), op2.str())
+                  smt2lib::reference(parent->getID()),
+                  smt2lib::bvxor(op1, op2)
                 )
               )
             ),
@@ -30,28 +30,28 @@ std::string EflagsExpressions::af(SymbolicElement *parent,
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::afNeg(SymbolicElement *parent,
-                                     uint32_t bvSize, 
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::afNeg(SymbolicExpression *parent,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * af = 0x10 == (0x10 & (op1 ^ regDst))
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
               smt2lib::bv(0x10, bvSize),
               smt2lib::bvand(
                 smt2lib::bv(0x10, bvSize),
                 smt2lib::bvxor(
-                  op1.str(),
-                  parent->getID2Str()
+                  op1,
+                  smt2lib::reference(parent->getID())
                 )
               )
             ),
@@ -59,197 +59,305 @@ std::string EflagsExpressions::afNeg(SymbolicElement *parent,
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfAdd(SymbolicElement *parent,
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfAdd(SymbolicExpression *parent,
+                                                      smt2lib::smtAstAbstractNode *op1)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * cf = regDst < op1
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::bvult(
-              parent->getID2Str(),
-              op1.str()
+              smt2lib::reference(parent->getID()),
+              op1
             ),
             smt2lib::bv(1, 1),
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfNeg(uint32_t bvSize,
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfImul(SymbolicExpression *parent,
+                                                       smt2lib::smtAstAbstractNode *op1)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
-   * cf = 0 if op1 == 0 else 1
+   * cf = 0 if res == op1 else 1
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
-              op1.str(),
+              smt2lib::reference(parent->getID()),
+              op1
+            ),
+            smt2lib::bv(0, 1),
+            smt2lib::bv(1, 1));
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfMul(uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *up)
+{
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * cf = 0 if up == 0 else 1
+   */
+  expr = smt2lib::ite(
+            smt2lib::equal(
+              up,
               smt2lib::bv(0, bvSize)
             ),
             smt2lib::bv(0, 1),
             smt2lib::bv(1, 1));
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfMul(SymbolicElement *parent,
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfNeg(uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
-   * of = 0 if res == op1 else 1
+   * cf = 0 if op1 == 0 else 1
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
-              parent->getID2Str(),
-              op1.str()
+              op1,
+              smt2lib::bv(0, bvSize)
             ),
             smt2lib::bv(0, 1),
             smt2lib::bv(1, 1));
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfSar(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfRcl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * cf = (res & 1) if op2 != 0 else undefined
+   * As the second operand can't be symbolized, there is
+   * no symbolic expression available. So, we must use the
+   * op2's concretization.
+   */
+  if (op2->getKind() != smt2lib::DECIMAL_NODE)
+    throw std::runtime_error("EflagsExpressions::cfRcl() - op2 must be a smtAstDecimalNode node");
+
+  if (reinterpret_cast<smt2lib::smtAstDecimalNode *>(op2)->getValue() != 0)
+    expr = smt2lib::extract(bvSize, bvSize, smt2lib::reference(parent->getID()));
+  else
+    expr = ap.buildSymbolicFlagOperand(ID_CF);
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfRol(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      smt2lib::smtAstAbstractNode *op2)
+{
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * cf = (res & 1) if op2 != 0 else undefined
+   * As the second operand can't be symbolized, there is
+   * no symbolic expression available. So, we must use the
+   * op2's concretization.
+   */
+  if (op2->getKind() != smt2lib::DECIMAL_NODE)
+    throw std::runtime_error("EflagsExpressions::cfRol() - op2 must be a smtAstDecimalNode node");
+
+  if (reinterpret_cast<smt2lib::smtAstDecimalNode *>(op2)->getValue() != 0)
+    expr = smt2lib::extract(0, 0, smt2lib::reference(parent->getID()));
+  else
+    expr = ap.buildSymbolicFlagOperand(ID_CF);
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfRor(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
+{
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * cf = (res >> bvSize - 1) & 1 if op2 != 0 else undefined
+   * As the second operand can't be symbolized, there is
+   * no symbolic expression available. So, we must use the
+   * op2's concretization.
+   */
+  if (op2->getKind() != smt2lib::DECIMAL_NODE)
+    throw std::runtime_error("EflagsExpressions::cfRor() - op2 must be a smtAstDecimalNode node");
+
+  if (reinterpret_cast<smt2lib::smtAstDecimalNode *>(op2)->getValue() != 0) {
+    expr = smt2lib::extract(0, 0,
+      smt2lib::bvlshr(
+        smt2lib::reference(parent->getID()),
+        smt2lib::bvsub(
+          smt2lib::bv(bvSize, bvSize),
+          smt2lib::bv(1, bvSize)
+        )
+      )
+    );
+  }
+  else {
+    expr = ap.buildSymbolicFlagOperand(ID_CF);
+  }
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfSar(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
+{
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * if op2 != 0:
    *   if op2 > bvSize:
    *     cf.id = ((op1 >> (bvSize - 1)) & 1)
-   *   else: 
+   *   else:
    *     cf.id = ((op1 >> (op2 - 1)) & 1)
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_CF),
             smt2lib::ite(
-              smt2lib::bvugt(op2.str(), smt2lib::bv(bvSize, bvSize)),
-              smt2lib::extract(0, 0, smt2lib::bvlshr(op1.str(), smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize)))),
-              smt2lib::extract(0, 0, smt2lib::bvlshr(op1.str(), smt2lib::bvsub(op2.str(), smt2lib::bv(1, bvSize))))
+              smt2lib::bvugt(op2, smt2lib::bv(bvSize, bvSize)),
+              smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize)))),
+              smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(op2, smt2lib::bv(1, bvSize))))
             )
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfShl(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfShl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * cf = (op1 >> (bvSize - op2) & 1) if op2 != 0
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_CF),
-            smt2lib::extract(0, 0, smt2lib::bvlshr(op1.str(), smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), op2.str())))
+            smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), op2)))
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfShr(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfShr(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * cf = ((op1 >> (op2 - 1)) & 1) if op2 != 0
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_CF),
-            smt2lib::extract(0, 0, smt2lib::bvlshr(op1.str(), smt2lib::bvsub(op2.str(), smt2lib::bv(1, bvSize))))
+            smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(op2, smt2lib::bv(1, bvSize))))
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::cfSub(std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfSub(smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * cf = op1 < op2
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::bvult(
-              op1.str(),
-              op2.str()
+              op1,
+              op2
             ),
             smt2lib::bv(1, 1),
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::clearFlag(void)
+smt2lib::smtAstAbstractNode *EflagsExpressions::clearFlag(void)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
-  expr << smt2lib::bv(0, 1);
+  expr = smt2lib::bv(0, 1);
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofAdd(SymbolicElement *parent,
-                                     uint32_t extractSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofAdd(SymbolicExpression *parent,
+                                                      uint32 extractSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = high:bool((op1 ^ ~op2) & (op1 ^ regDst))
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
               smt2lib::extract(extractSize, extractSize,
                 smt2lib::bvand(
-                  smt2lib::bvxor(op1.str(), smt2lib::bvnot(op2.str())),
-                  smt2lib::bvxor(op1.str(), parent->getID2Str())
+                  smt2lib::bvxor(op1, smt2lib::bvnot(op2)),
+                  smt2lib::bvxor(op1, smt2lib::reference(parent->getID()))
                 )
               ),
               smt2lib::bv(1, 1)
@@ -258,25 +366,67 @@ std::string EflagsExpressions::ofAdd(SymbolicElement *parent,
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofNeg(SymbolicElement *parent,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofImul(SymbolicExpression *parent,
+                                                       smt2lib::smtAstAbstractNode *op1)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * of = 0 if res == op1 else 1
+   */
+  expr = smt2lib::ite(
+            smt2lib::equal(
+              smt2lib::reference(parent->getID()),
+              op1
+            ),
+            smt2lib::bv(0, 1),
+            smt2lib::bv(1, 1));
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofMul(uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *up)
+{
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * of = 0 if up == 0 else 1
+   */
+  expr = smt2lib::ite(
+            smt2lib::equal(
+              up,
+              smt2lib::bv(0, bvSize)
+            ),
+            smt2lib::bv(0, 1),
+            smt2lib::bv(1, 1));
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofNeg(SymbolicExpression *parent,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1)
+{
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = bit_cast((res & op1) >> (bvSize - 1), int1(1));
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
               smt2lib::extract(0, 0,
                 smt2lib::bvshl(
-                  smt2lib::bvand(parent->getID2Str(), op1.str()),
+                  smt2lib::bvand(smt2lib::reference(parent->getID()), op1),
                   smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))
                 )
               ),
@@ -286,120 +436,174 @@ std::string EflagsExpressions::ofNeg(SymbolicElement *parent,
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofMul(SymbolicElement *parent,
-                                     std::stringstream &op1)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofRol(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
-   * of = 0 if res == op1 else 1
+   * of = ((cf ^ (res >> (bvsize - 1))) & 1) if op2 == 1 else undefined
+   * As the second operand can't be symbolized, there is
+   * no symbolic expression available. So, we must use the
+   * op2's concretization.
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(
-              parent->getID2Str(),
-              op1.str()
-            ),
-            smt2lib::bv(0, 1),
-            smt2lib::bv(1, 1));
+  if (op2->getKind() != smt2lib::DECIMAL_NODE)
+    throw std::runtime_error("EflagsExpressions::ofRol() - op2 must be a smtAstDecimalNode node");
 
-  return expr.str();
+  if (reinterpret_cast<smt2lib::smtAstDecimalNode *>(op2)->getValue() == 1) {
+    expr = smt2lib::extract(0, 0,
+              smt2lib::bvxor(
+                ap.buildSymbolicFlagOperand(ID_CF),
+                smt2lib::bvshl(
+                  smt2lib::reference(parent->getID()),
+                  smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))
+                )
+              )
+            );
+  }
+  else {
+    expr = ap.buildSymbolicFlagOperand(ID_OF);
+  }
+
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofSar(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofRor(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
+
+  /*
+   * Create the SMT semantic.
+   * of = (((res >> (bvSize - 1)) ^ (res >> (bvSize - 2))) & 1) if op2 == 1 else undefined
+   * As the second operand can't be symbolized, there is
+   * no symbolic expression available. So, we must use the
+   * op2's concretization.
+   */
+  if (op2->getKind() != smt2lib::DECIMAL_NODE)
+    throw std::runtime_error("EflagsExpressions::ofRor() - op2 must be a smtAstDecimalNode node");
+
+  if (reinterpret_cast<smt2lib::smtAstDecimalNode *>(op2)->getValue() == 1) {
+    expr = smt2lib::extract(0, 0,
+              smt2lib::bvxor(
+                smt2lib::bvshl(
+                  smt2lib::reference(parent->getID()),
+                  smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))
+                ),
+                smt2lib::bvshl(
+                  smt2lib::reference(parent->getID()),
+                  smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(2, bvSize))
+                )
+              )
+            );
+  }
+  else {
+    expr = ap.buildSymbolicFlagOperand(ID_OF);
+  }
+
+  return expr;
+}
+
+
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofSar(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
+{
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = 0 if op2 == 1
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(1, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(1, bvSize)),
             smt2lib::bv(0, 1),
             ap.buildSymbolicFlagOperand(ID_OF)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofShl(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofShl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = bit_cast((op1 >> (bvSize - 1)) ^ (op1 >> (bvSize - 2)), int1(1)); if op2 == 1
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(1, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(1, bvSize)),
             smt2lib::extract(0, 0,
               smt2lib::bvxor(
-                smt2lib::bvlshr(op1.str(), smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))),
-                smt2lib::bvlshr(op1.str(), smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(2, bvSize)))
+                smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))),
+                smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(2, bvSize)))
               )
             ),
             ap.buildSymbolicFlagOperand(ID_OF)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofShr(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofShr(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = (op1 >> (bvSize - 1) & 1) if op2 == 1
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(1, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(1, bvSize)),
             smt2lib::extract(0, 0,
-                smt2lib::bvlshr(op1.str(), smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize)))
+                smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize)))
             ),
             ap.buildSymbolicFlagOperand(ID_OF)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::ofSub(SymbolicElement *parent,
-                                     uint32_t extractSize,
-                                     std::stringstream &op1,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::ofSub(SymbolicExpression *parent,
+                                                      uint32 extractSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * of = high:bool((op1 ^ op2) & (op1 ^ regDst))
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
               smt2lib::extract(extractSize, extractSize,
                 smt2lib::bvand(
-                  smt2lib::bvxor(op1.str(), op2.str()),
-                  smt2lib::bvxor(op1.str(), parent->getID2Str())
+                  smt2lib::bvxor(op1, op2),
+                  smt2lib::bvxor(op1, smt2lib::reference(parent->getID()))
                 )
               ),
               smt2lib::bv(1, 1)
@@ -408,13 +612,14 @@ std::string EflagsExpressions::ofSub(SymbolicElement *parent,
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::pf(SymbolicElement *parent)
+smt2lib::smtAstAbstractNode *EflagsExpressions::pf(SymbolicExpression *parent, uint32 bvSize)
 {
-  std::stringstream expr;
+  uint32 counter = 0;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
@@ -422,134 +627,137 @@ std::string EflagsExpressions::pf(SymbolicElement *parent)
    * pf is set to one if there is a even number of bit set to 1 in the least
    * significant byte of the result.
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(
-              smt2lib::parityFlag(
-                smt2lib::extract(7, 0, parent->getID2Str())),
-              smt2lib::bv(0, 1)
-            ),
-            smt2lib::bv(1, 1),
-            smt2lib::bv(0, 1)
-          ); 
+  expr = smt2lib::bv(1, 1);
+  for ( ; counter <= 7 ; counter++) {
+    expr = smt2lib::bvxor(
+             expr,
+             smt2lib::extract(0, 0,
+               smt2lib::bvlshr(
+                 smt2lib::extract(bvSize, 0, smt2lib::reference(parent->getID())),
+                 smt2lib::bv(bvSize, counter)
+               )
+            )
+          );
+  }
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::pfShl(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::pfShl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * pf if op2 != 0
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_PF),
-            EflagsExpressions::pf(parent)
+            EflagsExpressions::pf(parent, bvSize)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::setFlag(void)
+smt2lib::smtAstAbstractNode *EflagsExpressions::setFlag(void)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
-  expr << smt2lib::bv(1, 1);
+  expr = smt2lib::bv(1, 1);
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::sf(SymbolicElement *parent,
-                                  uint32_t extractSize)
+smt2lib::smtAstAbstractNode *EflagsExpressions::sf(SymbolicExpression *parent,
+                                                   uint32 extractSize)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * sf = high:bool(regDst)
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
-              smt2lib::extract(extractSize, extractSize, parent->getID2Str()),
+              smt2lib::extract(extractSize, extractSize, smt2lib::reference(parent->getID())),
               smt2lib::bv(1, 1)
             ),
             smt2lib::bv(1, 1),
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::sfShl(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     uint32_t extractSize,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::sfShl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      uint32 extractSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * sf if op2 != 0
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_SF),
             EflagsExpressions::sf(parent, extractSize)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::zf(SymbolicElement *parent,
-                                  uint32_t bvSize)
+smt2lib::smtAstAbstractNode *EflagsExpressions::zf(SymbolicExpression *parent,
+                                                   uint32 bvSize)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * zf = 0 == regDst
    */
-  expr << smt2lib::ite(
+  expr = smt2lib::ite(
             smt2lib::equal(
-              parent->getID2Str(),
+              smt2lib::reference(parent->getID()),
               smt2lib::bv(0, bvSize)
             ),
             smt2lib::bv(1, 1),
             smt2lib::bv(0, 1)
           );
 
-  return expr.str();
+  return expr;
 }
 
 
-std::string EflagsExpressions::zfShl(SymbolicElement *parent,
-                                     AnalysisProcessor &ap,
-                                     uint32_t bvSize,
-                                     std::stringstream &op2)
+smt2lib::smtAstAbstractNode *EflagsExpressions::zfShl(SymbolicExpression *parent,
+                                                      AnalysisProcessor &ap,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op2)
 {
-  std::stringstream expr;
+  smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
    * zf if op2 != 0
    */
-  expr << smt2lib::ite(
-            smt2lib::equal(op2.str(), smt2lib::bv(0, bvSize)),
+  expr = smt2lib::ite(
+            smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_ZF),
             EflagsExpressions::zf(parent, bvSize)
           );
 
-  return expr.str();
+  return expr;
 }
 

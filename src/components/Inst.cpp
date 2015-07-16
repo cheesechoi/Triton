@@ -1,11 +1,18 @@
 
+#include <pin.H>
 #include <Inst.h>
-#include <xed-category-enum.h>
 
 
-Inst::Inst(uint64_t threadId, uint64_t address, const std::string &insDis):
-  threadId(threadId), address(address), disassembly(insDis)
+Inst::Inst(uint64 threadId, uint64 address, const std::string &dis)
 {
+  this->address     = address;
+  this->baseAddress = IMG_LowAddress(SEC_Img(RTN_Sec(RTN_FindByAddress(address))));
+  this->disassembly = dis;
+  this->imageName   = IMG_Name(SEC_Img(RTN_Sec(RTN_FindByAddress(address))));
+  this->offset      = this->address - this->baseAddress;
+  this->routineName = RTN_FindNameByAddress(address);
+  this->sectionName = SEC_Name(RTN_Sec(RTN_FindByAddress(address)));
+  this->threadId    = threadId;
 }
 
 
@@ -22,21 +29,21 @@ const std::string &Inst::getDisassembly(void)
 
 
 /* Returns the instruction address */
-uint64_t Inst::getAddress(void)
+uint64 Inst::getAddress(void)
 {
   return this->address;
 }
 
 
 /* Returns the thread ID of the instruction */
-uint64_t Inst::getThreadID(void)
+uint64 Inst::getThreadID(void)
 {
   return this->threadId;
 }
 
 
 /* Returns the opcode of the instruction */
-uint32_t Inst::getOpcode(void)
+uint32 Inst::getOpcode(void)
 {
   return this->opcode;
 }
@@ -50,7 +57,7 @@ int32_t Inst::getOpcodeCategory(void)
 
 
 /* Set the opcode of the instruction */
-void Inst::setOpcode(uint32_t op)
+void Inst::setOpcode(uint32 op)
 {
   this->opcode = op;
 }
@@ -84,23 +91,58 @@ void Inst::setOperands(const std::vector<TritonOperand> &operands)
 }
 
 
-/* Adds a new symbolic element */
-void Inst::addElement(SymbolicElement *se)
+/* Adds a new symbolic expression */
+void Inst::addExpression(SymbolicExpression *se)
 {
-  this->symbolicElements.push_back(se);
+  this->symbolicExpressions.push_back(se);
 }
 
 
-/* Returns the elements list */
-const std::list<SymbolicElement*> &Inst::getSymbolicElements(void)
+/* Returns the expressions list */
+const std::list<SymbolicExpression*> &Inst::getSymbolicExpressions(void)
 {
-  return this->symbolicElements;
+  return this->symbolicExpressions;
 }
 
 
-/* Returns the number of elements */
-size_t Inst::numberOfElements(void)
+/* Returns the number of expressions */
+size_t Inst::numberOfExpressions(void)
 {
-  return this->symbolicElements.size();
+  return this->symbolicExpressions.size();
+}
+
+
+/* Returns the image name */
+const std::string &Inst::getImageName(void)
+{
+  return this->imageName;
+}
+
+
+/* Returns the section name */
+const std::string &Inst::getSectionName(void)
+{
+  return this->imageName;
+}
+
+
+/* Returns the routine name */
+const std::string &Inst::getRoutineName(void)
+{
+  return this->routineName;
+}
+
+
+/* Returns the base address */
+uint64 Inst::getBaseAddress(void)
+{
+  return this->baseAddress;
+}
+
+
+/* Returns the offset of the instruction in the file */
+uint64 Inst::getOffset(void)
+{
+  return this->offset;
 }
 

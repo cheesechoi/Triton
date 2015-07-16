@@ -1,3 +1,4 @@
+#include <csignal>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -36,6 +37,9 @@ static void callbackBefore(IRBuilder *irb, CONTEXT *ctx, BOOL hasEA, ADDRINT ea,
   /* Analysis locked */
     return;
 
+  /* Mutex */
+  ap.lock();
+
   if (hasEA)
     irb->setup(ea);
 
@@ -58,6 +62,9 @@ static void callbackBefore(IRBuilder *irb, CONTEXT *ctx, BOOL hasEA, ADDRINT ea,
 
   /* Python callback before instruction processing */
   processingPyConf.callbackBefore(inst, &ap);
+
+  /* Mutex */
+  ap.unlock();
 }
 
 
@@ -68,6 +75,9 @@ static void callbackAfter(CONTEXT *ctx, THREADID threadId)
   if (!analysisTrigger.getState())
   /* Analysis locked */
     return;
+
+  /* Mutex */
+  ap.lock();
 
   /* Update the current context handler */
   ap.updateCurrentCtxH(new PINContextHandler(ctx, threadId));
@@ -80,10 +90,13 @@ static void callbackAfter(CONTEXT *ctx, THREADID threadId)
 
   /* Python callback after instruction processing */
   processingPyConf.callbackAfter(inst, &ap);
+
+  /* Mutex */
+  ap.unlock();
 }
 
 
-static void callbackSnapshot(UINT64 mem, UINT32 writeSize)
+static void callbackSnapshot(uint64 mem, uint32 writeSize)
 {
   if (!analysisTrigger.getState())
   /* Analysis locked */
@@ -93,9 +106,15 @@ static void callbackSnapshot(UINT64 mem, UINT32 writeSize)
   if (ap.isSnapshotLocked())
     return;
 
-  uint32_t i = 0;
+  /* Mutex */
+  ap.lock();
+
+  uint32 i = 0;
   for (; i < writeSize ; i++)
-    ap.addSnapshotModification(mem+i, *(reinterpret_cast<UINT8*>(mem+i)));
+    ap.addSnapshotModification(mem+i, *(reinterpret_cast<uint8*>(mem+i)));
+
+  /* Mutex */
+  ap.unlock();
 }
 
 
@@ -160,7 +179,9 @@ static void TRACE_Instrumentation(TRACE trace, VOID *programName)
 
 static void toggleWrapper(bool flag)
 {
+  ap.lock();
   analysisTrigger.update(flag);
+  ap.unlock();
 }
 
 
@@ -169,7 +190,10 @@ static void callbackRoutineEntry(THREADID threadId, PyObject *callback)
   if (!analysisTrigger.getState())
   /* Analysis locked */
     return;
+
+  ap.lock();
   processingPyConf.callbackRoutine(threadId, callback);
+  ap.unlock();
 }
 
 
@@ -178,7 +202,10 @@ static void callbackRoutineExit(THREADID threadId, PyObject *callback)
   if (!analysisTrigger.getState())
   /* Analysis locked */
     return;
+
+  ap.lock();
   processingPyConf.callbackRoutine(threadId, callback);
+  ap.unlock();
 }
 
 
@@ -248,11 +275,17 @@ static void callbackSyscallEntry(THREADID threadId, CONTEXT *ctx, SYSCALL_STANDA
   /* Analysis locked */
     return;
 
+  /* Mutex */
+  ap.lock();
+
   /* Update the current context handler */
   ap.updateCurrentCtxH(new PINContextHandler(ctx, threadId));
 
   /* Python callback at the end of execution */
   processingPyConf.callbackSyscallEntry(threadId, std);
+
+  /* Mutex */
+  ap.unlock();
 }
 
 
@@ -263,19 +296,80 @@ static void callbackSyscallExit(THREADID threadId, CONTEXT *ctx, SYSCALL_STANDAR
   /* Analysis locked */
     return;
 
+  /* Mutex */
+  ap.lock();
+
   /* Update the current context handler */
   ap.updateCurrentCtxH(new PINContextHandler(ctx, threadId));
 
   /* Python callback at the end of execution */
   processingPyConf.callbackSyscallExit(threadId, std);
+
+  /* Mutex */
+  ap.unlock();
 }
 
 
-/* 
+/* Callback when a signals occurs */
+static bool callbackSignals(THREADID threadId, sint32 sig, CONTEXT *ctx, bool hasHandler, const EXCEPTION_INFO *pExceptInfo, void *v)
+{
+  if (!analysisTrigger.getState())
+  /* Analysis locked */
+    return false;
+
+  /* Mutex */
+  ap.lock();
+
+  /* Update the current context handler */
+  ap.updateCurrentCtxH(new PINContextHandler(ctx, threadId));
+
+  /* Python callback at the end of execution */
+  processingPyConf.callbackSignals(threadId, sig);
+
+  /* Mutex */
+  ap.unlock();
+
+  /*
+   * We must exit. If you don't want to exit,
+   * you must use the restoreSnapshot() function.
+   */
+  exit(0);
+
+  return true;
+}
+
+
+/* Callback when a thread is created */
+static void callbackThreadEntry(THREADID threadId, CONTEXT *ctx, sint32 flags, void *v)
+{
+  /* Mutex */
+  ap.lock();
+
+  // TODO #30: Create a map entry of (thread -> {taintEngine, symEngine}).
+
+  /* Mutex */
+  ap.unlock();
+}
+
+
+/* Callback when a thread is destroyed */
+static void callbackThreadExit(THREADID threadId, const CONTEXT *ctx, sint32 flags, void *v)
+{
+  /* Mutex */
+  ap.lock();
+
+  // TODO #30: Destroy the map entry corresponding to the threadId.
+
+  /* Mutex */
+  ap.unlock();
+}
+
+
+/*
  * Usage function if Pin fail to start.
  * Display the help message.
  */
-static int32_t Usage()
+static sint32 Usage()
 {
   std::cerr << KNOB_BASE::StringKnobSummary() << std::endl;
   return -1;
@@ -285,7 +379,7 @@ static int32_t Usage()
 /* Get the name of the target binary */
 static char *getProgramName(char *argv[])
 {
-  uint64_t offset;
+  uint64 offset;
   for (offset = 0; argv[offset]; offset++){
     if (!strcmp(argv[offset], "--") && argv[offset+1])
       return argv[offset+1];
@@ -314,10 +408,21 @@ int main(int argc, char *argv[])
   PIN_AddFiniFunction(Fini, nullptr);
 
   /* Syscall entry callback */
-  PIN_AddSyscallEntryFunction(callbackSyscallEntry, 0);
+  PIN_AddSyscallEntryFunction(callbackSyscallEntry, nullptr);
 
   /* Syscall exit callback */
-  PIN_AddSyscallExitFunction(callbackSyscallExit, 0);
+  PIN_AddSyscallExitFunction(callbackSyscallExit, nullptr);
+
+  /* Signals callback */
+  PIN_InterceptSignal(SIGFPE,  callbackSignals, nullptr); /* Floating point exception */
+  PIN_InterceptSignal(SIGILL,  callbackSignals, nullptr); /* Illegal Instruction */
+  PIN_InterceptSignal(SIGKILL, callbackSignals, nullptr); /* Kill signal */
+  PIN_InterceptSignal(SIGPIPE, callbackSignals, nullptr); /* Broken pipe: write to pipe with no readers */
+  PIN_InterceptSignal(SIGSEGV, callbackSignals, nullptr); /* Invalid memory reference */
+
+  /* Threads callbacks */
+  PIN_AddThreadStartFunction(callbackThreadEntry, nullptr);
+  PIN_AddThreadFiniFunction(callbackThreadExit, nullptr);
 
   /* Exec the python bindings file */
   if (!execBindings(KnobPythonModule.Value().c_str())) {

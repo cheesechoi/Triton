@@ -1,78 +1,64 @@
 #ifndef  TRITON_REGISTERS_H
 #define  TRITON_REGISTERS_H
 
-#define BYTE_SIZE         1   // In byte
-#define BYTE_SIZE_BIT     8   // In bits
+#include "CpuSize.h"
 
-#define WORD_SIZE         2   // In byte
-#define WORD_SIZE_BIT     16  // In bits
-
-#define DWORD_SIZE        4   // In byte
-#define DWORD_SIZE_BIT    32  // In bits
-
-#define QWORD_SIZE        8   // In byte
-#define QWORD_SIZE_BIT    64  // In byte
-
-#define REG_SIZE          QWORD_SIZE
-#define REG_SIZE_BIT      QWORD_SIZE_BIT
-
-#define REG_SIZE_SSE      16  // In byte
-#define REG_SIZE_SSE_BIT  128 // In bits
 
 enum regID_t
 {
   /* Register ID used in the Taint and Symbolic Engines */
-  ID_INVALID = 0,
-  ID_RAX,
-  ID_RBX,
-  ID_RCX,
-  ID_RDX,
-  ID_RDI,
-  ID_RSI,
-  ID_RBP,
-  ID_RSP,
-  ID_RIP,
-  ID_R8,
-  ID_R9,
-  ID_R10,
-  ID_R11,
-  ID_R12,
-  ID_R13,
-  ID_R14,
-  ID_R15,
+  /* 0  */ ID_INVALID = 0,
+  /* 1  */ ID_RAX,
+  /* 2  */ ID_RBX,
+  /* 3  */ ID_RCX,
+  /* 4  */ ID_RDX,
+  /* 5  */ ID_RDI,
+  /* 6  */ ID_RSI,
+  /* 7  */ ID_RBP,
+  /* 8  */ ID_RSP,
+  /* 9  */ ID_RIP,
+  /* 10 */ ID_R8,
+  /* 11 */ ID_R9,
+  /* 12 */ ID_R10,
+  /* 13 */ ID_R11,
+  /* 14 */ ID_R12,
+  /* 15 */ ID_R13,
+  /* 16 */ ID_R14,
+  /* 17 */ ID_R15,
 
   /* SSE */
-  ID_XMM0,
-  ID_XMM1,
-  ID_XMM2,
-  ID_XMM3,
-  ID_XMM4,
-  ID_XMM5,
-  ID_XMM6,
-  ID_XMM7,
-  ID_XMM8,
-  ID_XMM9,
-  ID_XMM10,
-  ID_XMM11,
-  ID_XMM12,
-  ID_XMM13,
-  ID_XMM14,
-  ID_XMM15,
+  /* 18 */ ID_XMM0,
+  /* 19 */ ID_XMM1,
+  /* 20 */ ID_XMM2,
+  /* 21 */ ID_XMM3,
+  /* 22 */ ID_XMM4,
+  /* 23 */ ID_XMM5,
+  /* 24 */ ID_XMM6,
+  /* 25 */ ID_XMM7,
+  /* 26 */ ID_XMM8,
+  /* 27 */ ID_XMM9,
+  /* 28 */ ID_XMM10,
+  /* 29 */ ID_XMM11,
+  /* 30 */ ID_XMM12,
+  /* 31 */ ID_XMM13,
+  /* 32 */ ID_XMM14,
+  /* 33 */ ID_XMM15,
 
   /* Flags ID used in the Taint and Symbolic Engines */
-  ID_RFLAGS,
-  ID_AF,
-  ID_CF,
-  ID_DF,
-  ID_IF,
-  ID_OF,
-  ID_PF,
-  ID_SF,
-  ID_TF,
-  ID_ZF,
+  /* 34 */ ID_RFLAGS,
+  /* 35 */ ID_AF,
+  /* 36 */ ID_CF,
+  /* 37 */ ID_DF,
+  /* 38 */ ID_IF,
+  /* 39 */ ID_OF,
+  /* 40 */ ID_PF,
+  /* 41 */ ID_SF,
+  /* 42 */ ID_TF,
+  /* 43 */ ID_ZF,
 
   /* Must be the last item */
   ID_LAST_ITEM
 };
 
 #endif //__REGISTERS_H__
+

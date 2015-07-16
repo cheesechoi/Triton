@@ -5,65 +5,65 @@
 #include <DecIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-DecIRBuilder::DecIRBuilder(uint64_t address, const std::string &disassembly):
+DecIRBuilder::DecIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
 void DecIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1, op2;
-  uint64_t          reg       = this->operands[0].getValue();
-  uint32_t          regSize   = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
+  uint64 reg       = this->operands[0].getValue();
+  uint32 regSize   = this->operands[0].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(reg, regSize);
-  op2 << smt2lib::bv(1, regSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(reg, regSize);
+  op2 = smt2lib::bv(1, regSize * REG_SIZE);
 
   /* Finale expr */
-  expr << smt2lib::bvsub(op1.str(), op2.str());
+  expr = smt2lib::bvsub(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, reg, regSize);
 
   /* Apply the taint */
   ap.aluSpreadTaintRegReg(se, reg, reg);
 
-  /* Add the symbolic flags element to the current inst */
+  /* Add the symbolic flags expression to the current inst */
   EflagsBuilder::af(inst, se, ap, regSize, op1, op2);
   EflagsBuilder::ofSub(inst, se, ap, regSize, op1, op2);
-  EflagsBuilder::pf(inst, se, ap);
+  EflagsBuilder::pf(inst, se, ap, regSize);
   EflagsBuilder::sf(inst, se, ap, regSize);
   EflagsBuilder::zf(inst, se, ap, regSize);
 }
 
 
 void DecIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1, op2;
-  uint64_t          mem       = this->operands[0].getValue();
-  uint32_t          memSize   = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
+  uint64 mem       = this->operands[0].getValue();
+  uint32 memSize   = this->operands[0].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(mem, memSize);
-  op2 << smt2lib::bv(1, memSize * REG_SIZE);
+  op1 = ap.buildSymbolicMemOperand(mem, memSize);
+  op2 = smt2lib::bv(1, memSize * REG_SIZE);
 
   /* Finale expr */
-  expr << smt2lib::bvsub(op1.str(), op2.str());
+  expr = smt2lib::bvsub(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr, mem, memSize);
 
   /* Apply the taint */
-  ap.aluSpreadTaintMemMem(se, mem, mem);
+  ap.aluSpreadTaintMemMem(se, mem, mem, memSize);
 
-  /* Add the symbolic flags element to the current inst */
+  /* Add the symbolic flags expression to the current inst */
   EflagsBuilder::af(inst, se, ap, memSize, op1, op2);
   EflagsBuilder::ofSub(inst, se, ap, memSize, op1, op2);
-  EflagsBuilder::pf(inst, se, ap);
+  EflagsBuilder::pf(inst, se, ap, memSize);
   EflagsBuilder::sf(inst, se, ap, memSize);
   EflagsBuilder::zf(inst, se, ap, memSize);
 }
@@ -88,7 +88,7 @@ Inst *DecIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "DEC");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {

@@ -5,26 +5,26 @@
 #include <LeaveIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-LeaveIRBuilder::LeaveIRBuilder(uint64_t address, const std::string &disassembly):
+LeaveIRBuilder::LeaveIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t readSize)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint32 readSize)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
-  op2 << smt2lib::bv(readSize, readSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
+  op2 = smt2lib::bv(readSize, readSize * REG_SIZE);
 
-  expr << smt2lib::bvadd(op1.str(), op2.str());
+  expr = smt2lib::bvadd(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -34,15 +34,15 @@ static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t r
 }
 
 void LeaveIRBuilder::none(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement     *se1, *se2;
-  std::stringstream   expr1, expr2;
-  uint64_t            readMem   = this->operands[0].getValue(); // The src memory read
-  uint32_t            readSize  = this->operands[0].getSize();
+  SymbolicExpression *se1, *se2;
+  smt2lib::smtAstAbstractNode *expr1, *expr2;
+  uint64   readMem   = this->operands[0].getValue(); // The src memory read
+  uint32   readSize  = this->operands[0].getSize();
 
   // RSP = RBP; -----------------------------
-  expr1 << ap.buildSymbolicRegOperand(ID_RBP, REG_SIZE);
+  expr1 = ap.buildSymbolicRegOperand(ID_RBP, REG_SIZE);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se1 = ap.createRegSE(inst, expr1, ID_RSP, REG_SIZE);
 
   /* Apply the taint */
@@ -50,16 +50,16 @@ void LeaveIRBuilder::none(AnalysisProcessor &ap, Inst &inst) const {
   // RSP = RBP; -----------------------------
 
   // RBP = Pop(); ---------------------------
-  expr2 << ap.buildSymbolicMemOperand(readMem, readSize);
+  expr2 = ap.buildSymbolicMemOperand(readMem, readSize);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se2 = ap.createRegSE(inst, expr2, ID_RBP, REG_SIZE);
 
   /* Apply the taint */
   ap.assignmentSpreadTaintRegMem(se2, ID_RBP, readMem, readSize);
   // RBP = Pop(); ---------------------------
-  
-  /* Add the symbolic element to the current inst */
+
+  /* Add the symbolic expression to the current inst */
   alignStack(inst, ap, readSize);
 }
 
@@ -71,7 +71,7 @@ Inst *LeaveIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "LEAVE");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {

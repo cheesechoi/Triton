@@ -5,90 +5,90 @@
 #include <DivIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-DivIRBuilder::DivIRBuilder(uint64_t address, const std::string &disassembly):
+DivIRBuilder::DivIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
 void DivIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, result, dividend, divisor, mod;
-  uint64_t          reg       = this->operands[0].getValue();
-  uint32_t          regSize   = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *result, *dividend, *divisor, *mod;
+  uint64 reg       = this->operands[0].getValue();
+  uint32 regSize   = this->operands[0].getSize();
 
   /* Create the SMT semantic */
-  divisor << ap.buildSymbolicRegOperand(reg, regSize);
+  divisor = ap.buildSymbolicRegOperand(reg, regSize);
 
   switch (regSize) {
 
-    case 1:
+    case BYTE_SIZE:
       /* AX */
-      dividend << ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE);
+      dividend = ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE);
       /* res = AX / Source */
-      result << smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), BYTE_SIZE_BIT));
+      result = smt2lib::bvudiv(dividend, smt2lib::zx(BYTE_SIZE_BIT, divisor));
       /* mod = AX % Source */
-      mod << smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), BYTE_SIZE_BIT));
+      mod = smt2lib::bvurem(dividend, smt2lib::zx(BYTE_SIZE_BIT, divisor));
       /* AH = mod */
       /* AL = res */
-      expr << smt2lib::concat(
-                smt2lib::extract(7, 0, mod.str()),   /* AH = mod */
-                smt2lib::extract(7, 0, result.str()) /* AL = res */
+      expr = smt2lib::concat(
+                smt2lib::extract(7, 0, mod),   /* AH = mod */
+                smt2lib::extract(7, 0, result) /* AL = res */
               );
-      /* Create the symbolic element */
+      /* Create the symbolic expression */
       se = ap.createRegSE(inst, expr, ID_RAX, WORD_SIZE);
       /* Apply the taint */
       ap.aluSpreadTaintRegReg(se, ID_RAX, reg);
       break;
 
-    case 2:
+    case WORD_SIZE:
       /* DX:AX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, WORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, WORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE));
       /* res = DX:AX / Source */
-      result << smt2lib::extract(15, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), WORD_SIZE_BIT)));
+      result = smt2lib::extract(15, 0, smt2lib::bvudiv(dividend, smt2lib::zx(WORD_SIZE_BIT, divisor)));
       /* mod = DX:AX % Source */
-      mod << smt2lib::extract(15, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), WORD_SIZE_BIT)));
-      /* Create the symbolic element for AX */
+      mod = smt2lib::extract(15, 0, smt2lib::bvurem(dividend, smt2lib::zx(WORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for AX */
       se = ap.createRegSE(inst, result, ID_RAX, WORD_SIZE);
       /* Apply the taint for AX */
       ap.aluSpreadTaintRegReg(se, ID_RAX, reg);
-      /* Create the symbolic element for DX */
+      /* Create the symbolic expression for DX */
       se = ap.createRegSE(inst, mod, ID_RDX, WORD_SIZE);
       /* Apply the taint for DX */
       ap.aluSpreadTaintRegReg(se, ID_RDX, reg);
       break;
 
-    case 4:
+    case DWORD_SIZE:
       /* EDX:EAX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, DWORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, DWORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, DWORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, DWORD_SIZE));
       /* res = EDX:EAX / Source */
-      result << smt2lib::extract(31, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), DWORD_SIZE_BIT)));
+      result = smt2lib::extract(31, 0, smt2lib::bvudiv(dividend, smt2lib::zx(DWORD_SIZE_BIT, divisor)));
       /* mod = EDX:EAX % Source */
-      mod << smt2lib::extract(31, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), DWORD_SIZE_BIT)));
-      /* Create the symbolic element for EAX */
+      mod = smt2lib::extract(31, 0, smt2lib::bvurem(dividend, smt2lib::zx(DWORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for EAX */
       se = ap.createRegSE(inst, result, ID_RAX, DWORD_SIZE);
       /* Apply the taint for EAX */
       ap.aluSpreadTaintRegReg(se, ID_RAX, reg);
-      /* Create the symbolic element for EDX */
+      /* Create the symbolic expression for EDX */
       se = ap.createRegSE(inst, mod, ID_RDX, DWORD_SIZE);
       /* Apply the taint for EDX */
       ap.aluSpreadTaintRegReg(se, ID_RDX, reg);
       break;
 
-    case 8:
+    case QWORD_SIZE:
       /* RDX:RAX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE), ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE), ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE));
       /* res = RDX:RAX / Source */
-      result << smt2lib::extract(63, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), QWORD_SIZE_BIT)));
+      result = smt2lib::extract(63, 0, smt2lib::bvudiv(dividend, smt2lib::zx(QWORD_SIZE_BIT, divisor)));
       /* mod = RDX:RAX % Source */
-      mod << smt2lib::extract(63, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), QWORD_SIZE_BIT)));
-      /* Create the symbolic element for RAX */
+      mod = smt2lib::extract(63, 0, smt2lib::bvurem(dividend, smt2lib::zx(QWORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for RAX */
       se = ap.createRegSE(inst, result, ID_RAX, QWORD_SIZE);
       /* Apply the taint for RAX */
       ap.aluSpreadTaintRegReg(se, ID_RAX, reg);
-      /* Create the symbolic element for RDX */
+      /* Create the symbolic expression for RDX */
       se = ap.createRegSE(inst, mod, ID_RDX, QWORD_SIZE);
       /* Apply the taint for RDX */
       ap.aluSpreadTaintRegReg(se, ID_RDX, reg);
@@ -98,81 +98,81 @@ void DivIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void DivIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, result, dividend, divisor, mod;
-  uint64_t          mem       = this->operands[0].getValue();
-  uint32_t          memSize   = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *result, *dividend, *divisor, *mod;
+  uint64 mem       = this->operands[0].getValue();
+  uint32 memSize   = this->operands[0].getSize();
 
   /* Create the SMT semantic */
-  divisor << ap.buildSymbolicMemOperand(mem, memSize);
+  divisor = ap.buildSymbolicMemOperand(mem, memSize);
 
   switch (memSize) {
 
-    case 1:
+    case BYTE_SIZE:
       /* AX */
-      dividend << ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE);
+      dividend = ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE);
       /* res = AX / Source */
-      result << smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), BYTE_SIZE_BIT));
+      result = smt2lib::bvudiv(dividend, smt2lib::zx(BYTE_SIZE_BIT, divisor));
       /* mod = AX % Source */
-      mod << smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), BYTE_SIZE_BIT));
+      mod = smt2lib::bvurem(dividend, smt2lib::zx(BYTE_SIZE_BIT, divisor));
       /* AH = mod */
       /* AL = res */
-      expr << smt2lib::concat(
-                smt2lib::extract(7, 0, mod.str()),   /* AH = mod */
-                smt2lib::extract(7, 0, result.str()) /* AL = res */
+      expr = smt2lib::concat(
+                smt2lib::extract(7, 0, mod),   /* AH = mod */
+                smt2lib::extract(7, 0, result) /* AL = res */
               );
-      /* Create the symbolic element */
+      /* Create the symbolic expression */
       se = ap.createRegSE(inst, expr, ID_RAX, WORD_SIZE);
       /* Apply the taint */
       ap.aluSpreadTaintRegMem(se, ID_RAX, mem, memSize);
       break;
 
-    case 2:
+    case WORD_SIZE:
       /* DX:AX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, WORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, WORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, WORD_SIZE));
       /* res = DX:AX / Source */
-      result << smt2lib::extract(15, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), WORD_SIZE_BIT)));
+      result = smt2lib::extract(15, 0, smt2lib::bvudiv(dividend, smt2lib::zx(WORD_SIZE_BIT, divisor)));
       /* mod = DX:AX % Source */
-      mod << smt2lib::extract(15, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), WORD_SIZE_BIT)));
-      /* Create the symbolic element for AX */
+      mod = smt2lib::extract(15, 0, smt2lib::bvurem(dividend, smt2lib::zx(WORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for AX */
       se = ap.createRegSE(inst, result, ID_RAX, WORD_SIZE);
       /* Apply the taint for AX */
       ap.aluSpreadTaintRegMem(se, ID_RAX, mem, memSize);
-      /* Create the symbolic element for DX */
+      /* Create the symbolic expression for DX */
       se = ap.createRegSE(inst, mod, ID_RDX, WORD_SIZE);
       /* Apply the taint for DX */
       ap.aluSpreadTaintRegMem(se, ID_RDX, mem, memSize);
       break;
 
-    case 4:
+    case DWORD_SIZE:
       /* EDX:EAX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, DWORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, DWORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, DWORD_SIZE), ap.buildSymbolicRegOperand(ID_RAX, DWORD_SIZE));
       /* res = EDX:EAX / Source */
-      result << smt2lib::extract(31, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), DWORD_SIZE_BIT)));
+      result = smt2lib::extract(31, 0, smt2lib::bvudiv(dividend, smt2lib::zx(DWORD_SIZE_BIT, divisor)));
       /* mod = EDX:EAX % Source */
-      mod << smt2lib::extract(31, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), DWORD_SIZE_BIT)));
-      /* Create the symbolic element for EAX */
+      mod = smt2lib::extract(31, 0, smt2lib::bvurem(dividend, smt2lib::zx(DWORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for EAX */
       se = ap.createRegSE(inst, result, ID_RAX, DWORD_SIZE);
       /* Apply the taint for EAX */
       ap.aluSpreadTaintRegMem(se, ID_RAX, mem, memSize);
-      /* Create the symbolic element for EDX */
+      /* Create the symbolic expression for EDX */
       se = ap.createRegSE(inst, mod, ID_RDX, DWORD_SIZE);
       /* Apply the taint for EDX */
       ap.aluSpreadTaintRegMem(se, ID_RDX, mem, memSize);
       break;
 
-    case 8:
+    case QWORD_SIZE:
       /* RDX:RAX */
-      dividend << smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE), ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE));
+      dividend = smt2lib::concat(ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE), ap.buildSymbolicRegOperand(ID_RDX, QWORD_SIZE));
       /* res = RDX:RAX / Source */
-      result << smt2lib::extract(63, 0, smt2lib::bvudiv(dividend.str(), smt2lib::zx(divisor.str(), QWORD_SIZE_BIT)));
+      result = smt2lib::extract(63, 0, smt2lib::bvudiv(dividend, smt2lib::zx(QWORD_SIZE_BIT, divisor)));
       /* mod = RDX:RAX % Source */
-      mod << smt2lib::extract(63, 0, smt2lib::bvurem(dividend.str(), smt2lib::zx(divisor.str(), QWORD_SIZE_BIT)));
-      /* Create the symbolic element for RAX */
+      mod = smt2lib::extract(63, 0, smt2lib::bvurem(dividend, smt2lib::zx(QWORD_SIZE_BIT, divisor)));
+      /* Create the symbolic expression for RAX */
       se = ap.createRegSE(inst, result, ID_RAX, QWORD_SIZE);
       /* Apply the taint for RAX */
       ap.aluSpreadTaintRegMem(se, ID_RAX, mem, memSize);
-      /* Create the symbolic element for RDX */
+      /* Create the symbolic expression for RDX */
       se = ap.createRegSE(inst, mod, ID_RDX, QWORD_SIZE);
       /* Apply the taint for RDX */
       ap.aluSpreadTaintRegMem(se, ID_RDX, mem, memSize);
@@ -200,7 +200,7 @@ Inst *DivIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "DIV");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {

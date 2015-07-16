@@ -5,26 +5,26 @@
 #include <RetIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-RetIRBuilder::RetIRBuilder(uint64_t address, const std::string &disassembly):
+RetIRBuilder::RetIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
-  op2 << smt2lib::bv(REG_SIZE, REG_SIZE_BIT);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
+  op2 = smt2lib::bv(REG_SIZE, REG_SIZE_BIT);
 
-  expr << smt2lib::bvadd(op1.str(), op2.str());
+  expr = smt2lib::bvadd(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -34,18 +34,18 @@ static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap)
 }
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint64_t imm)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint64 imm)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
-  op2 << smt2lib::bv(imm, REG_SIZE_BIT);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
+  op2 = smt2lib::bv(imm, REG_SIZE_BIT);
 
-  expr << smt2lib::bvadd(op1.str(), op2.str());
+  expr = smt2lib::bvadd(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -62,19 +62,19 @@ void RetIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void RetIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          imm       = this->operands[0].getValue();
-  uint64_t          memSrc    = this->operands[1].getValue(); // The dst memory read
-  uint32_t          readSize  = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 imm       = this->operands[0].getValue();
+  uint64 memSrc    = this->operands[1].getValue(); // The dst memory read
+  uint32 readSize  = this->operands[1].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(memSrc, readSize);
+  op1 = ap.buildSymbolicMemOperand(memSrc, readSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
@@ -87,18 +87,18 @@ void RetIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void RetIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          memSrc    = this->operands[0].getValue(); // The dst memory read
-  uint32_t          readSize  = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 memSrc    = this->operands[0].getValue(); // The dst memory read
+  uint32 readSize  = this->operands[0].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(memSrc, readSize);
+  op1 = ap.buildSymbolicMemOperand(memSrc, readSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
@@ -123,7 +123,7 @@ Inst *RetIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "RET");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
   }
   catch (std::exception &e) {
     delete inst;

@@ -5,27 +5,27 @@
 #include <PushIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-PushIRBuilder::PushIRBuilder(uint64_t address, const std::string &disassembly):
+PushIRBuilder::PushIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t writeSize)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint32 writeSize)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression    *se;
+  smt2lib::smtAstAbstractNode   *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, writeSize);
-  op2 << smt2lib::bv(writeSize, writeSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, writeSize);
+  op2 = smt2lib::bv(writeSize, writeSize * REG_SIZE);
 
-  expr << smt2lib::bvsub(op1.str(), op2.str());
+  expr = smt2lib::bvsub(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -36,23 +36,23 @@ static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t w
 
 
 void PushIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          reg       = this->operands[0].getValue(); // Reg pushed
-  uint64_t          mem       = this->operands[1].getValue(); // The dst memory writing
-  uint32_t          writeSize = this->operands[1].getSize();
-  uint32_t          regSize   = this->operands[0].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 reg       = this->operands[0].getValue(); // Reg pushed
+  uint64 mem       = this->operands[1].getValue(); // The dst memory writing
+  uint32 writeSize = this->operands[1].getSize();
+  uint32 regSize   = this->operands[0].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicRegOperand(reg, regSize);
+  op1 = ap.buildSymbolicRegOperand(reg, regSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr, mem, writeSize);
 
   /* Apply the taint */
@@ -62,23 +62,23 @@ void PushIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void PushIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          imm       = this->operands[0].getValue(); // Imm pushed
-  uint64_t          mem       = this->operands[1].getValue(); // The dst memory writing
-  uint32_t          writeSize = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 imm       = this->operands[0].getValue(); // Imm pushed
+  uint64 mem       = this->operands[1].getValue(); // The dst memory writing
+  uint32 writeSize = this->operands[1].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
   /* OP_1 */
-  op1 << smt2lib::bv(imm, writeSize * REG_SIZE);
+  op1 = smt2lib::bv(imm, writeSize * REG_SIZE);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr, mem, writeSize);
 
   /* Apply the taint */
@@ -88,23 +88,23 @@ void PushIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void PushIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          memOp     = this->operands[0].getValue(); // Mem pushed
-  uint32_t          readSize  = this->operands[0].getSize();
-  uint64_t          memDst    = this->operands[1].getValue(); // The dst memory writing
-  uint32_t          writeSize = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 memOp     = this->operands[0].getValue(); // Mem pushed
+  uint32 readSize  = this->operands[0].getSize();
+  uint64 memDst    = this->operands[1].getValue(); // The dst memory writing
+  uint32 writeSize = this->operands[1].getSize();
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap, writeSize);
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(memOp, readSize);
+  op1 = ap.buildSymbolicMemOperand(memOp, readSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr, memDst, writeSize);
 
   /* Apply the taint */
@@ -126,7 +126,7 @@ Inst *PushIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "PUSH");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {

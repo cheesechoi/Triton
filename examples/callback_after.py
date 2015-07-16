@@ -1,7 +1,7 @@
 
 # Output
 #
-# $ ../../../pin -t ./triton.so -script ./examples/callback_after.py -- ./samples/crackmes/crackme_xor a
+# $ ./triton ./examples/callback_after.py ./samples/crackmes/crackme_xor a
 # 0x40056d: push rbp
 #          -> #0 = (bvsub (_ bv140735022953896 64) (_ bv8 64)) ; Aligns stack
 #          -> #1 = (_ bv140735022953936 64) 
@@ -145,15 +145,14 @@
 
 from triton import *
 
-
 # A callback must be a function with one argument. This argument is
 # always the Instruction class and contains all information
 def my_callback_after(instruction):
 
     print '%#x: %s' %(instruction.address, instruction.assembly)
 
-    for se in instruction.symbolicElements:
-        print '\t -> %s %s' %(se.expression, (('; ' + se.comment) if se.comment is not None else ''))
+    for se in instruction.symbolicExpressions:
+        print '\t -> #%d = %s %s' %(se.getId(), se.getAst(), (('; ' + se.getComment()) if se.getComment() is not None else ''))
 
     print
 

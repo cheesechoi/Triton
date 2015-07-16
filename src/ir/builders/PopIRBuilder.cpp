@@ -5,26 +5,26 @@
 #include <PopIRBuilder.h>
 #include <Registers.h>
 #include <SMT2Lib.h>
-#include <SymbolicElement.h>
+#include <SymbolicExpression.h>
 
 
-PopIRBuilder::PopIRBuilder(uint64_t address, const std::string &disassembly):
+PopIRBuilder::PopIRBuilder(uint64 address, const std::string &disassembly):
   BaseIRBuilder(address, disassembly) {
 }
 
 
-static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t readSize)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint32 readSize)
 {
-  SymbolicElement     *se;
-  std::stringstream   expr, op1, op2;
+  SymbolicExpression    *se;
+  smt2lib::smtAstAbstractNode   *expr, *op1, *op2;
 
   /* Create the SMT semantic. */
-  op1 << ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
-  op2 << smt2lib::bv(readSize, readSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, REG_SIZE);
+  op2 = smt2lib::bv(readSize, readSize * REG_SIZE);
 
-  expr << smt2lib::bvadd(op1.str(), op2.str());
+  expr = smt2lib::bvadd(op1, op2);
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, ID_RSP, REG_SIZE, "Aligns stack");
 
   /* Apply the taint */
@@ -35,20 +35,20 @@ static SymbolicElement *alignStack(Inst &inst, AnalysisProcessor &ap, uint32_t r
 
 
 void PopIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          reg       = this->operands[0].getValue(); // Reg poped
-  uint64_t          regSize   = this->operands[0].getSize();  // Reg size poped
-  uint64_t          mem       = this->operands[1].getValue(); // The src memory read
-  uint32_t          readSize  = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 reg       = this->operands[0].getValue(); // Reg poped
+  uint64 regSize   = this->operands[0].getSize();  // Reg size poped
+  uint64 mem       = this->operands[1].getValue(); // The src memory read
+  uint32 readSize  = this->operands[1].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(mem, readSize);
+  op1 = ap.buildSymbolicMemOperand(mem, readSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr, reg, regSize);
 
   /* Apply the taint */
@@ -60,20 +60,20 @@ void PopIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void PopIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicElement   *se;
-  std::stringstream expr, op1;
-  uint64_t          memOp     = this->operands[0].getValue(); // Mem poped
-  uint32_t          writeSize = this->operands[0].getSize();
-  uint64_t          memSrc    = this->operands[1].getValue(); // The dst memory read
-  uint32_t          readSize  = this->operands[1].getSize();
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1;
+  uint64 memOp     = this->operands[0].getValue(); // Mem poped
+  uint32 writeSize = this->operands[0].getSize();
+  uint64 memSrc    = this->operands[1].getValue(); // The dst memory read
+  uint32 readSize  = this->operands[1].getSize();
 
   /* Create the SMT semantic */
-  op1 << ap.buildSymbolicMemOperand(memSrc, readSize);
+  op1 = ap.buildSymbolicMemOperand(memSrc, readSize);
 
   /* Finale expr */
-  expr << op1.str();
+  expr = op1;
 
-  /* Create the symbolic element */
+  /* Create the symbolic expression */
   se = ap.createMemSE(inst, expr, memOp, writeSize);
 
   /* Apply the taint */
@@ -103,7 +103,7 @@ Inst *PopIRBuilder::process(AnalysisProcessor &ap) const {
 
   try {
     this->templateMethod(ap, *inst, this->operands, "POP");
-    ap.incNumberOfExpressions(inst->numberOfElements()); /* Used for statistics */
+    ap.incNumberOfExpressions(inst->numberOfExpressions()); /* Used for statistics */
     ControlFlow::rip(*inst, ap, this->nextAddress);
   }
   catch (std::exception &e) {
