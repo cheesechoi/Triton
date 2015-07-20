@@ -31,6 +31,7 @@ static PyObject *SymbolicExpression_getComment(PyObject *self, PyObject *noarg)
   SymbolicExpression *expression = PySymbolicExpression_AsSymbolicExpression(self);
   if (expression->getComment().empty() == false)
     return PyString_FromFormat("%s", expression->getComment().c_str());
+  Py_INCREF(Py_None);
   return Py_None;
 }
 
@@ -43,13 +44,14 @@ static PyObject *SymbolicExpression_getId(PyObject *self, PyObject *noarg)
 }
 
 
+
 static char SymbolicExpression_isTainted_doc[] = "Returns true if the expression is tainted";
 static PyObject *SymbolicExpression_isTainted(PyObject *self, PyObject *noarg)
 {
   SymbolicExpression *expression = PySymbolicExpression_AsSymbolicExpression(self);
   if (expression->isTainted == true)
-    return Py_True;
-  return Py_False;
+    Py_RETURN_TRUE;
+  Py_RETURN_FALSE;
 }
 
 

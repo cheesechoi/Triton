@@ -26,7 +26,6 @@ smtAstAbstractNode::smtAstAbstractNode(const smtAstAbstractNode &copy) {
 
 smtAstAbstractNode::~smtAstAbstractNode() {
   freeAllNodes(this->childs);
-  this->childs.clear();
 }
 
 
@@ -61,8 +60,12 @@ smtAstAssertNode::smtAstAssertNode(const smtAstAssertNode &copy) {
 }
 
 
-smtAstAssertNode::~smtAstAssertNode(){
+smtAstAssertNode::~smtAstAssertNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstAssertNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -83,8 +86,12 @@ smtAstBvaddNode::smtAstBvaddNode(const smtAstBvaddNode &copy) {
 }
 
 
-smtAstBvaddNode::~smtAstBvaddNode(){
+smtAstBvaddNode::~smtAstBvaddNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvaddNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -105,9 +112,14 @@ smtAstBvandNode::smtAstBvandNode(const smtAstBvandNode &copy) {
 }
 
 
-smtAstBvandNode::~smtAstBvandNode(){
+smtAstBvandNode::~smtAstBvandNode() {
   freeAllNodes(this->childs);
 }
+
+void smtAstBvandNode::accept(Visitor& v) {
+  v(*this);
+}
+
 
 
 // ====== bvashr
@@ -127,8 +139,12 @@ smtAstBvashrNode::smtAstBvashrNode(const smtAstBvashrNode &copy) {
 }
 
 
-smtAstBvashrNode::~smtAstBvashrNode(){
+smtAstBvashrNode::~smtAstBvashrNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvashrNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -149,8 +165,12 @@ smtAstBvlshrNode::smtAstBvlshrNode(const smtAstBvlshrNode &copy) {
 }
 
 
-smtAstBvlshrNode::~smtAstBvlshrNode(){
+smtAstBvlshrNode::~smtAstBvlshrNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvlshrNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -171,8 +191,12 @@ smtAstBvmulNode::smtAstBvmulNode(const smtAstBvmulNode &copy) {
 }
 
 
-smtAstBvmulNode::~smtAstBvmulNode(){
+smtAstBvmulNode::~smtAstBvmulNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvmulNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -193,8 +217,12 @@ smtAstBvnandNode::smtAstBvnandNode(const smtAstBvnandNode &copy) {
 }
 
 
-smtAstBvnandNode::~smtAstBvnandNode(){
+smtAstBvnandNode::~smtAstBvnandNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvnandNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -214,8 +242,12 @@ smtAstBvnegNode::smtAstBvnegNode(const smtAstBvnegNode &copy) {
 }
 
 
-smtAstBvnegNode::~smtAstBvnegNode(){
+smtAstBvnegNode::~smtAstBvnegNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvnegNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -236,8 +268,12 @@ smtAstBvnorNode::smtAstBvnorNode(const smtAstBvnorNode &copy) {
 }
 
 
-smtAstBvnorNode::~smtAstBvnorNode(){
+smtAstBvnorNode::~smtAstBvnorNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvnorNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -257,8 +293,12 @@ smtAstBvnotNode::smtAstBvnotNode(const smtAstBvnotNode &copy) {
 }
 
 
-smtAstBvnotNode::~smtAstBvnotNode(){
+smtAstBvnotNode::~smtAstBvnotNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvnotNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -279,8 +319,12 @@ smtAstBvorNode::smtAstBvorNode(const smtAstBvorNode &copy) {
 }
 
 
-smtAstBvorNode::~smtAstBvorNode(){
+smtAstBvorNode::~smtAstBvorNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvorNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -310,8 +354,12 @@ smtAstBvrolNode::smtAstBvrolNode(smtAstAbstractNode *rot, smtAstAbstractNode *ex
 }
 
 
-smtAstBvrolNode::~smtAstBvrolNode(){
+smtAstBvrolNode::~smtAstBvrolNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvrolNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -341,8 +389,12 @@ smtAstBvrorNode::smtAstBvrorNode(smtAstAbstractNode *rot, smtAstAbstractNode *ex
 }
 
 
-smtAstBvrorNode::~smtAstBvrorNode(){
+smtAstBvrorNode::~smtAstBvrorNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvrorNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -363,8 +415,12 @@ smtAstBvsdivNode::smtAstBvsdivNode(const smtAstBvsdivNode &copy) {
 }
 
 
-smtAstBvsdivNode::~smtAstBvsdivNode(){
+smtAstBvsdivNode::~smtAstBvsdivNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsdivNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -385,8 +441,12 @@ smtAstBvsgeNode::smtAstBvsgeNode(const smtAstBvsgeNode &copy) {
 }
 
 
-smtAstBvsgeNode::~smtAstBvsgeNode(){
+smtAstBvsgeNode::~smtAstBvsgeNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsgeNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -407,8 +467,12 @@ smtAstBvsgtNode::smtAstBvsgtNode(const smtAstBvsgtNode &copy) {
 }
 
 
-smtAstBvsgtNode::~smtAstBvsgtNode(){
+smtAstBvsgtNode::~smtAstBvsgtNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsgtNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -429,8 +493,12 @@ smtAstBvshlNode::smtAstBvshlNode(const smtAstBvshlNode &copy) {
 }
 
 
-smtAstBvshlNode::~smtAstBvshlNode(){
+smtAstBvshlNode::~smtAstBvshlNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvshlNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -451,8 +519,12 @@ smtAstBvsleNode::smtAstBvsleNode(const smtAstBvsleNode &copy) {
 }
 
 
-smtAstBvsleNode::~smtAstBvsleNode(){
+smtAstBvsleNode::~smtAstBvsleNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsleNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -473,8 +545,12 @@ smtAstBvsltNode::smtAstBvsltNode(const smtAstBvsltNode &copy) {
 }
 
 
-smtAstBvsltNode::~smtAstBvsltNode(){
+smtAstBvsltNode::~smtAstBvsltNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsltNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -495,8 +571,12 @@ smtAstBvsmodNode::smtAstBvsmodNode(const smtAstBvsmodNode &copy) {
 }
 
 
-smtAstBvsmodNode::~smtAstBvsmodNode(){
+smtAstBvsmodNode::~smtAstBvsmodNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsmodNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -517,8 +597,12 @@ smtAstBvsremNode::smtAstBvsremNode(const smtAstBvsremNode &copy) {
 }
 
 
-smtAstBvsremNode::~smtAstBvsremNode(){
+smtAstBvsremNode::~smtAstBvsremNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsremNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -539,8 +623,12 @@ smtAstBvsubNode::smtAstBvsubNode(const smtAstBvsubNode &copy) {
 }
 
 
-smtAstBvsubNode::~smtAstBvsubNode(){
+smtAstBvsubNode::~smtAstBvsubNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvsubNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -561,8 +649,12 @@ smtAstBvudivNode::smtAstBvudivNode(const smtAstBvudivNode &copy) {
 }
 
 
-smtAstBvudivNode::~smtAstBvudivNode(){
+smtAstBvudivNode::~smtAstBvudivNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvudivNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -583,8 +675,12 @@ smtAstBvugeNode::smtAstBvugeNode(const smtAstBvugeNode &copy) {
 }
 
 
-smtAstBvugeNode::~smtAstBvugeNode(){
+smtAstBvugeNode::~smtAstBvugeNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvugeNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -605,8 +701,12 @@ smtAstBvugtNode::smtAstBvugtNode(const smtAstBvugtNode &copy) {
 }
 
 
-smtAstBvugtNode::~smtAstBvugtNode(){
+smtAstBvugtNode::~smtAstBvugtNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvugtNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -627,8 +727,12 @@ smtAstBvuleNode::smtAstBvuleNode(const smtAstBvuleNode &copy) {
 }
 
 
-smtAstBvuleNode::~smtAstBvuleNode(){
+smtAstBvuleNode::~smtAstBvuleNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvuleNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -649,8 +753,12 @@ smtAstBvultNode::smtAstBvultNode(const smtAstBvultNode &copy) {
 }
 
 
-smtAstBvultNode::~smtAstBvultNode(){
+smtAstBvultNode::~smtAstBvultNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvultNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -671,8 +779,12 @@ smtAstBvuremNode::smtAstBvuremNode(const smtAstBvuremNode &copy) {
 }
 
 
-smtAstBvuremNode::~smtAstBvuremNode(){
+smtAstBvuremNode::~smtAstBvuremNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvuremNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -693,8 +805,12 @@ smtAstBvxnorNode::smtAstBvxnorNode(const smtAstBvxnorNode &copy) {
 }
 
 
-smtAstBvxnorNode::~smtAstBvxnorNode(){
+smtAstBvxnorNode::~smtAstBvxnorNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvxnorNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -715,8 +831,12 @@ smtAstBvxorNode::smtAstBvxorNode(const smtAstBvxorNode &copy) {
 }
 
 
-smtAstBvxorNode::~smtAstBvxorNode(){
+smtAstBvxorNode::~smtAstBvxorNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvxorNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -737,8 +857,12 @@ smtAstBvNode::smtAstBvNode(const smtAstBvNode &copy) {
 }
 
 
-smtAstBvNode::~smtAstBvNode(){
+smtAstBvNode::~smtAstBvNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstBvNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -760,8 +884,12 @@ smtAstCompoundNode::smtAstCompoundNode(const smtAstCompoundNode &copy) {
 }
 
 
-smtAstCompoundNode::~smtAstCompoundNode(){
+smtAstCompoundNode::~smtAstCompoundNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstCompoundNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -807,8 +935,12 @@ smtAstConcatNode::smtAstConcatNode(std::list<smtAstAbstractNode *> exprs) {
 }
 
 
-smtAstConcatNode::~smtAstConcatNode(){
+smtAstConcatNode::~smtAstConcatNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstConcatNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -836,6 +968,10 @@ uint64 smtAstDecimalNode::getValue(void) {
   return this->value;
 }
 
+void smtAstDecimalNode::accept(Visitor& v) {
+  v(*this);
+}
+
 
 // ====== Declare node
 
@@ -858,6 +994,36 @@ smtAstDeclareNode::~smtAstDeclareNode() {
   freeAllNodes(this->childs);
 }
 
+void smtAstDeclareNode::accept(Visitor& v) {
+  v(*this);
+}
+
+
+// ====== Distinct node
+
+
+smtAstDistinctNode::smtAstDistinctNode(smtAstAbstractNode *expr1, smtAstAbstractNode *expr2) {
+  this->kind  = DISTINCT_NODE;
+  this->addChild(expr1);
+  this->addChild(expr2);
+}
+
+
+smtAstDistinctNode::smtAstDistinctNode(const smtAstDistinctNode &copy) {
+  this->kind = copy.kind;
+  for (uint64 index = 0; index < copy.childs.size(); index++)
+    this->childs.push_back(newInstance(copy.childs[index]));
+}
+
+
+smtAstDistinctNode::~smtAstDistinctNode() {
+  freeAllNodes(this->childs);
+}
+
+void smtAstDistinctNode::accept(Visitor& v) {
+  v(*this);
+}
+
 
 // ====== equal
 
@@ -876,8 +1042,12 @@ smtAstEqualNode::smtAstEqualNode(const smtAstEqualNode &copy) {
 }
 
 
-smtAstEqualNode::~smtAstEqualNode(){
+smtAstEqualNode::~smtAstEqualNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstEqualNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -899,8 +1069,12 @@ smtAstExtractNode::smtAstExtractNode(const smtAstExtractNode &copy) {
 }
 
 
-smtAstExtractNode::~smtAstExtractNode(){
+smtAstExtractNode::~smtAstExtractNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstExtractNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -922,8 +1096,12 @@ smtAstIteNode::smtAstIteNode(const smtAstIteNode &copy) {
 }
 
 
-smtAstIteNode::~smtAstIteNode(){
+smtAstIteNode::~smtAstIteNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstIteNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -949,6 +1127,10 @@ smtAstReferenceNode::~smtAstReferenceNode() {
 
 uint64 smtAstReferenceNode::getValue(void) {
   return this->value;
+}
+
+void smtAstReferenceNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -977,6 +1159,11 @@ std::string smtAstStringNode::getValue(void) {
 }
 
 
+void smtAstStringNode::accept(Visitor& v) {
+  v(*this);
+}
+
+
 // ====== sx
 
 
@@ -994,8 +1181,42 @@ smtAstSxNode::smtAstSxNode(const smtAstSxNode &copy) {
 }
 
 
-smtAstSxNode::~smtAstSxNode(){
+smtAstSxNode::~smtAstSxNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstSxNode::accept(Visitor& v) {
+  v(*this);
+}
+
+
+// ====== Variable node
+
+
+smtAstVariableNode::smtAstVariableNode(std::string variable) {
+  this->kind  = VARIABLE_NODE;
+  this->value = variable;
+}
+
+
+smtAstVariableNode::smtAstVariableNode(const smtAstVariableNode &copy) {
+  this->kind  = copy.kind;
+  this->value = copy.value;
+}
+
+
+smtAstVariableNode::~smtAstVariableNode() {
+  freeAllNodes(this->childs);
+}
+
+
+std::string smtAstVariableNode::getValue(void) {
+  return this->value;
+}
+
+
+void smtAstVariableNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -1016,8 +1237,12 @@ smtAstZxNode::smtAstZxNode(const smtAstZxNode &copy) {
 }
 
 
-smtAstZxNode::~smtAstZxNode(){
+smtAstZxNode::~smtAstZxNode() {
   freeAllNodes(this->childs);
+}
+
+void smtAstZxNode::accept(Visitor& v) {
+  v(*this);
 }
 
 
@@ -1027,7 +1252,7 @@ smtAstZxNode::~smtAstZxNode(){
 namespace smt2lib {
 
   /* Syntax dispatcher from an abstract node */
-  std::ostream &operator<<(std::ostream &stream, smtAstAbstractNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstAbstractNode *node) {
     switch (node->getKind()) {
       case ASSERT_NODE:     stream << reinterpret_cast<smtAstAssertNode *>(node); break;
       case BVADD_NODE:      stream << reinterpret_cast<smtAstBvaddNode *>(node); break;
@@ -1064,12 +1289,14 @@ namespace smt2lib {
       case CONCAT_NODE:     stream << reinterpret_cast<smtAstConcatNode *>(node); break;
       case DECIMAL_NODE:    stream << reinterpret_cast<smtAstDecimalNode *>(node); break;
       case DECLARE_NODE:    stream << reinterpret_cast<smtAstDeclareNode *>(node); break;
+      case DISTINCT_NODE:   stream << reinterpret_cast<smtAstDistinctNode *>(node); break;
       case EQUAL_NODE:      stream << reinterpret_cast<smtAstEqualNode *>(node); break;
       case EXTRACT_NODE:    stream << reinterpret_cast<smtAstExtractNode *>(node); break;
       case ITE_NODE:        stream << reinterpret_cast<smtAstIteNode *>(node); break;
       case REFERENCE_NODE:  stream << reinterpret_cast<smtAstReferenceNode *>(node); break;
       case STRING_NODE:     stream << reinterpret_cast<smtAstStringNode *>(node); break;
       case SX_NODE:         stream << reinterpret_cast<smtAstSxNode *>(node); break;
+      case VARIABLE_NODE:   stream << reinterpret_cast<smtAstVariableNode *>(node); break;
       case ZX_NODE:         stream << reinterpret_cast<smtAstZxNode *>(node); break;
       default:
         throw std::invalid_argument("smt2lib::operator<<(smtAstAbstractNode) - Invalid kind node");
@@ -1079,224 +1306,224 @@ namespace smt2lib {
 
 
   /* assert syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstAssertNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstAssertNode *node) {
     stream << "(assert " << node->getChilds()[0] << ")";
     return stream;
   }
 
 
   /* bvadd syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvaddNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvaddNode *node) {
     stream << "(bvadd " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvand syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvandNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvandNode *node) {
     stream << "(bvand " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvashr syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvashrNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvashrNode *node) {
     stream << "(bvashr " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvlshr syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvlshrNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvlshrNode *node) {
     stream << "(bvlshr " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvmul syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvmulNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvmulNode *node) {
     stream << "(bvmul " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvnand syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvnandNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvnandNode *node) {
     stream << "(bvnand " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvneg syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvnegNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvnegNode *node) {
     stream << "(bvneg " << node->getChilds()[0] << ")";
     return stream;
   }
 
 
   /* bvnor syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvnorNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvnorNode *node) {
     stream << "(bvnor " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvnot syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvnotNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvnotNode *node) {
     stream << "(bvnot " << node->getChilds()[0] << ")";
     return stream;
   }
 
 
   /* bvnor syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvorNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvorNode *node) {
     stream << "(bvor " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvrol syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvrolNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvrolNode *node) {
     stream << "((_ rotate_left " << node->getChilds()[0] << ") " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvror syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvrorNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvrorNode *node) {
     stream << "((_ rotate_right " << node->getChilds()[0] << ") " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsdiv syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsdivNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsdivNode *node) {
     stream << "(bvsdiv " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsge syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsgeNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsgeNode *node) {
     stream << "(bvsge " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsgt syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsgtNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsgtNode *node) {
     stream << "(bvsgt " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvshl syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvshlNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvshlNode *node) {
     stream << "(bvshl " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsle syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsleNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsleNode *node) {
     stream << "(bvsle " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvslt syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsltNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsltNode *node) {
     stream << "(bvslt " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsmod syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsmodNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsmodNode *node) {
     stream << "(bvsmod " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsrem syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsremNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsremNode *node) {
     stream << "(bvsrem " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvsub syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvsubNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvsubNode *node) {
     stream << "(bvsub " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvudiv syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvudivNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvudivNode *node) {
     stream << "(bvudiv " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvuge syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvugeNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvugeNode *node) {
     stream << "(bvuge " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvugt syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvugtNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvugtNode *node) {
     stream << "(bvugt " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvule syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvuleNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvuleNode *node) {
     stream << "(bvule " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvult syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvultNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvultNode *node) {
     stream << "(bvult " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvurem syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvuremNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvuremNode *node) {
     stream << "(bvurem " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvxnor syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvxnorNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvxnorNode *node) {
     stream << "(bvxnor " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bvxor syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvxorNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvxorNode *node) {
     stream << "(bvxor " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* bv syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstBvNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstBvNode *node) {
     stream << "(_ bv" << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* compound syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstCompoundNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstCompoundNode *node) {
     uint64 index = 0;
     for ( ; index < node->getChilds().size(); index++)
       stream << node->getChilds()[index];
@@ -1305,7 +1532,7 @@ namespace smt2lib {
 
 
   /* concat syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstConcatNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstConcatNode *node) {
 
     uint64 index;
     std::vector<smtAstAbstractNode *> childs = node->getChilds();
@@ -1324,61 +1551,75 @@ namespace smt2lib {
 
 
   /* decimal syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstDecimalNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstDecimalNode *node) {
     stream << node->getValue();
     return stream;
   }
 
 
   /* declare syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstDeclareNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstDeclareNode *node) {
     stream << "(declare-fun " << node->getChilds()[0] << " () (_ BitVec " << node->getChilds()[1] << "))";
     return stream;
   }
 
 
+  /* distinct syntax */
+  std::ostream &operator<<(std::ostream &stream, smtAstDistinctNode *node) {
+    stream << "(distinct " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
+    return stream;
+  }
+
+
   /* equal syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstEqualNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstEqualNode *node) {
     stream << "(= " << node->getChilds()[0] << " " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
   /* extract syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstExtractNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstExtractNode *node) {
     stream << "((_ extract " << node->getChilds()[0] << " " << node->getChilds()[1] << ") " << node->getChilds()[2] << ")";
     return stream;
   }
 
 
   /* ite syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstIteNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstIteNode *node) {
     stream << "(ite " << node->getChilds()[0] << " " << node->getChilds()[1] << " " << node->getChilds()[2] << ")";
     return stream;
   }
 
   /* reference syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstReferenceNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstReferenceNode *node) {
     stream << "#" << node->getValue();
     return stream;
   }
 
   /* string syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstStringNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstStringNode *node) {
     stream << node->getValue();
     return stream;
   }
 
 
   /* sx syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstSxNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstSxNode *node) {
     stream << "((_ sign_extend " << node->getChilds()[0] << ") " << node->getChilds()[1] << ")";
     return stream;
   }
 
 
+  /* variable syntax */
+  std::ostream &operator<<(std::ostream &stream, smtAstVariableNode *node) {
+    stream << node->getValue();
+    return stream;
+  }
+
+
   /* zx syntax */
-  std::ostream &operator<<(std::ostream &stream, smtAstZxNode *node){
+  std::ostream &operator<<(std::ostream &stream, smtAstZxNode *node) {
     stream << "((_ zero_extend " << node->getChilds()[0] << ") " << node->getChilds()[1] << ")";
     return stream;
   }
@@ -1392,12 +1633,14 @@ namespace smt2lib {
 namespace smt2lib {
 
   /* Free all childs node */
-  void freeAllNodes(std::vector<smtAstAbstractNode *> childs) {
-    uint64 index = 0;
-    while (index != childs.size()){
-      delete childs[index];
-      index++;
-    }
+  void freeAllNodes(std::vector<smtAstAbstractNode *> &childs) {
+    //uint64 index = 0;
+    // TODO - FIXME: #141
+    //while (index < childs.size()) {
+    //  delete childs[index];
+    //  index++;
+    //}
+    childs.clear();
   }
 
 }
@@ -1735,6 +1978,13 @@ namespace smt2lib {
     return node;
   }
 
+  smtAstAbstractNode *distinct(smtAstAbstractNode *expr1, smtAstAbstractNode *expr2) {
+    smtAstAbstractNode *node = new smtAstDistinctNode(expr1, expr2);
+    if (node == nullptr)
+      throw std::runtime_error("Node builders - Not enough memory");
+    return node;
+  }
+
 
   smtAstAbstractNode *equal(smtAstAbstractNode *expr1, smtAstAbstractNode *expr2) {
     smtAstAbstractNode *node = new smtAstEqualNode(expr1, expr2);
@@ -1778,6 +2028,14 @@ namespace smt2lib {
 
   smtAstAbstractNode *sx(uint64 sizeExt, smtAstAbstractNode *expr) {
     smtAstAbstractNode *node = new smtAstSxNode(sizeExt, expr);
+    if (node == nullptr)
+      throw std::runtime_error("Node builders - Not enough memory");
+    return node;
+  }
+
+
+  smtAstAbstractNode *variable(std::string value) {
+    smtAstAbstractNode *node = new smtAstVariableNode(value);
     if (node == nullptr)
       throw std::runtime_error("Node builders - Not enough memory");
     return node;
@@ -1829,19 +2087,20 @@ namespace smt2lib {
       case CONCAT_NODE:     newNode = new smtAstConcatNode(*reinterpret_cast<smtAstConcatNode *>(node)); break;
       case DECIMAL_NODE:    newNode = new smtAstDecimalNode(*reinterpret_cast<smtAstDecimalNode *>(node)); break;
       case DECLARE_NODE:    newNode = new smtAstDeclareNode(*reinterpret_cast<smtAstDeclareNode *>(node)); break;
+      case DISTINCT_NODE:   newNode = new smtAstDistinctNode(*reinterpret_cast<smtAstDistinctNode *>(node)); break;
       case EQUAL_NODE:      newNode = new smtAstEqualNode(*reinterpret_cast<smtAstEqualNode *>(node)); break;
       case EXTRACT_NODE:    newNode = new smtAstExtractNode(*reinterpret_cast<smtAstExtractNode *>(node)); break;
       case ITE_NODE:        newNode = new smtAstIteNode(*reinterpret_cast<smtAstIteNode *>(node)); break;
       case REFERENCE_NODE:  newNode = new smtAstReferenceNode(*reinterpret_cast<smtAstReferenceNode *>(node)); break;
       case STRING_NODE:     newNode = new smtAstStringNode(*reinterpret_cast<smtAstStringNode *>(node)); break;
       case SX_NODE:         newNode = new smtAstSxNode(*reinterpret_cast<smtAstSxNode *>(node)); break;
+      case VARIABLE_NODE:   newNode = new smtAstVariableNode(*reinterpret_cast<smtAstVariableNode *>(node)); break;
       case ZX_NODE:         newNode = new smtAstZxNode(*reinterpret_cast<smtAstZxNode *>(node)); break;
       default:
         throw std::invalid_argument("smt2lib::newInstance() - Invalid kind node");
     }
     return newNode;
   }
-
 
 }
 

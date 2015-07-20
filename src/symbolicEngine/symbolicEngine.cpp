@@ -45,18 +45,12 @@ SymbolicEngine::~SymbolicEngine()
   std::vector<SymbolicVariable *>::iterator it2 = this->symbolicVariables.begin();
 
   /* Delete all symbolic expressions */
-  for (; it1 != this->symbolicExpressions.end(); ++it1) {
-    SymbolicExpression *tmp = *it1;
-    delete tmp;
-    tmp = nullptr;
-  }
+  for (; it1 != this->symbolicExpressions.end(); ++it1)
+    delete *it1;
 
   /* Delete all symbolic variables */
-  for (; it2 != this->symbolicVariables.end(); ++it2) {
-    SymbolicVariable *tmp = *it2;
-    delete tmp;
-    tmp = nullptr;
-  }
+  for (; it2 != this->symbolicVariables.end(); ++it2)
+    delete *it2;
 }
 
 
@@ -251,7 +245,7 @@ SymbolicVariable *SymbolicEngine::convertExprToSymVar(uint64 exprId, uint64 symV
 
   symVar = this->addSymbolicVariable(SymVar::kind::UNDEF, 0, symVarSize, symVarComment);
 
-  expression->setExpression(smt2lib::string(symVar->getSymVarName()));
+  expression->setExpression(smt2lib::variable(symVar->getSymVarName()));
 
   return symVar;
 }
@@ -274,7 +268,7 @@ SymbolicVariable *SymbolicEngine::convertMemToSymVar(uint64 memAddr, uint64 symV
 
   symVar = this->addSymbolicVariable(SymVar::kind::MEM, memAddr, symVarSize, symVarComment);
 
-  expression->setExpression(smt2lib::string(symVar->getSymVarName()));
+  expression->setExpression(smt2lib::variable(symVar->getSymVarName()));
 
   return symVar;
 }
@@ -300,7 +294,7 @@ SymbolicVariable *SymbolicEngine::convertRegToSymVar(uint64 regId, uint64 symVar
 
   symVar = this->addSymbolicVariable(SymVar::kind::REG, regId, symVarSize, symVarComment);
 
-  expression->setExpression(smt2lib::string(symVar->getSymVarName()));
+  expression->setExpression(smt2lib::variable(symVar->getSymVarName()));
 
   return symVar;
 }

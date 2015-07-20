@@ -143,7 +143,7 @@ SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAb
    * As the x86's memory can be accessed without alignment, each byte of the
    * memory must be assigned to an unique reference.
    */
-  while (writeSize){
+  while (writeSize) {
     /* Extract each byte of the memory */
     tmp = smt2lib::extract(((writeSize * REG_SIZE) - 1), ((writeSize * REG_SIZE) - REG_SIZE), expr);
     SymbolicExpression *se = symEngine.newSymbolicExpression(tmp, "byte reference");
@@ -168,7 +168,7 @@ SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAb
    * As the x86's memory can be accessed without alignment, each byte of the
    * memory must be assigned to an unique reference.
    */
-  while (writeSize){
+  while (writeSize) {
     /* Extract each byte of the memory */
     tmp = smt2lib::extract(((writeSize * REG_SIZE) - 1), ((writeSize * REG_SIZE) - REG_SIZE), expr);
     SymbolicExpression *se = symEngine.newSymbolicExpression(tmp, "byte reference");
@@ -326,9 +326,8 @@ smt2lib::smtAstAbstractNode *AnalysisProcessor::buildSymbolicMemOperand(uint64 m
 {
   std::list<smt2lib::smtAstAbstractNode *> opVec;
   smt2lib::smtAstAbstractNode *tmp = nullptr;
-  uint64 symMem, offset;
+  uint64 symMem;
 
-  offset = 0;
   while (memSize) {
     symMem = this->getMemSymbolicID(mem + memSize - 1);
     if (symMem != UNSET) {
@@ -336,10 +335,9 @@ smt2lib::smtAstAbstractNode *AnalysisProcessor::buildSymbolicMemOperand(uint64 m
       opVec.push_back(smt2lib::extract(7, 0, tmp));
     }
     else {
-      tmp = smt2lib::bv(this->getMemValue(mem + offset, 1), REG_SIZE);
-      opVec.push_front(smt2lib::extract(7, 0, tmp));
+      tmp = smt2lib::bv(this->getMemValue(mem + memSize - 1, 1), REG_SIZE);
+      opVec.push_back(smt2lib::extract(7, 0, tmp));
     }
-    offset++;
     memSize--;
   }
 
@@ -781,6 +779,18 @@ bool AnalysisProcessor::isSnapshotEnabled(void)
   if (this->snapshotEngine.isLocked())
     return false;
   return true;
+}
+
+
+// Evaluator
+// ---------
+
+uint512 AnalysisProcessor::evaluateAST(smt2lib::smtAstAbstractNode *node)
+{
+  Z3ast z3ast{};
+  Z3Result result = z3ast.eval(*node);
+  uint512 nbResult{result.getStringValue()};
+  return nbResult;
 }
 
 

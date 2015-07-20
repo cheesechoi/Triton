@@ -11,6 +11,7 @@
 #include "TaintEngine.h"
 #include "Trace.h"
 #include "TritonTypes.h"
+#include "Z3ast.h"
 
 
 
@@ -221,6 +222,12 @@ class AnalysisProcessor {
     void            restoreSnapshot(void);
     void            disableSnapshot(void);
     bool            isSnapshotEnabled(void);
+
+   /*
+    * Convert the SMT AST to a Z3 ast and evaluate it
+    * ------------------------------------------------
+    */
+    uint512 evaluateAST(smt2lib::smtAstAbstractNode *node);
 
 
   private:
