@@ -136,8 +136,9 @@ SymbolicExpression *AnalysisProcessor::createRegSE(Inst &inst, smt2lib::smtAstAb
 
 SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAbstractNode *expr, uint64 address, uint64 writeSize)
 {
-  SymbolicExpression *ret = nullptr;
+  SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *tmp;
+  std::list<smt2lib::smtAstAbstractNode *> ret;
 
   /*
    * As the x86's memory can be accessed without alignment, each byte of the
@@ -146,23 +147,28 @@ SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAb
   while (writeSize) {
     /* Extract each byte of the memory */
     tmp = smt2lib::extract(((writeSize * REG_SIZE) - 1), ((writeSize * REG_SIZE) - REG_SIZE), expr);
-    SymbolicExpression *se = symEngine.newSymbolicExpression(tmp, "byte reference");
-    ret = se;
+    se = symEngine.newSymbolicExpression(tmp, "byte reference");
+    ret.push_back(tmp);
     inst.addExpression(se);
     /* Assign memory with little endian */
     this->symEngine.addMemoryReference((address + writeSize) - 1, se->getID());
     writeSize--;
   }
 
-  /* TODO: Must returns a list */
-  return ret;
+  /* If there is only one reference, we return the symbolic expression */
+  if (ret.size() == 1)
+    return se;
+
+  /* Otherwise, we return the concatenation of all expressions */
+  return symEngine.newSymbolicExpression(smt2lib::concat(ret), "concat reference");
 }
 
 
 SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAbstractNode *expr, uint64 address, uint64 writeSize, std::string comment)
 {
-  SymbolicExpression *ret = nullptr;
+  SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *tmp;
+  std::list<smt2lib::smtAstAbstractNode *> ret;
 
   /*
    * As the x86's memory can be accessed without alignment, each byte of the
@@ -171,16 +177,20 @@ SymbolicExpression *AnalysisProcessor::createMemSE(Inst &inst, smt2lib::smtAstAb
   while (writeSize) {
     /* Extract each byte of the memory */
     tmp = smt2lib::extract(((writeSize * REG_SIZE) - 1), ((writeSize * REG_SIZE) - REG_SIZE), expr);
-    SymbolicExpression *se = symEngine.newSymbolicExpression(tmp, "byte reference");
-    ret = se;
+    se  = symEngine.newSymbolicExpression(tmp, "byte reference");
+    ret.push_back(tmp);
     inst.addExpression(se);
     /* Assign memory with little endian */
     this->symEngine.addMemoryReference((address + writeSize) - 1, se->getID());
     writeSize--;
   }
 
-  /* TODO: Must returns a list */
-  return ret;
+  /* If there is only one reference, we return the symbolic expression */
+  if (ret.size() == 1)
+    return se;
+
+  /* Otherwise, we return the concatenation of all symbolic expressions */
+  return symEngine.newSymbolicExpression(smt2lib::concat(ret), "concat reference");
 }
 
 
@@ -257,7 +267,6 @@ smt2lib::smtAstAbstractNode *AnalysisProcessor::getFullExpression(smt2lib::smtAs
 SymbolicVariable *AnalysisProcessor::convertExprToSymVar(uint64 exprId, uint64 symVarSize, std::string symVarComment)
 {
   SymbolicVariable *symVar = this->symEngine.convertExprToSymVar(exprId, symVarSize, symVarComment);
-  symVar->setSymVarConcreteValue(SymVar::kind::UNDEF);
   return symVar;
 }
 
@@ -272,8 +281,12 @@ SymbolicVariable *AnalysisProcessor::convertMemToSymVar(uint64 memAddr, uint64 s
 
 SymbolicVariable *AnalysisProcessor::convertRegToSymVar(uint64 regId, uint64 symVarSize, std::string symVarComment)
 {
+  uint128 mask     = 1;
+  mask             = (mask << symVarSize) - 1;
+  uint128 regValue = this->getRegisterValue(regId) & mask;
+  
   SymbolicVariable *symVar = this->symEngine.convertRegToSymVar(regId, symVarSize, symVarComment);
-  symVar->setSymVarConcreteValue(this->getRegisterValue(regId));
+  symVar->setSymVarConcreteValue(regValue);
   return symVar;
 }
 
