@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <CpuSize.h>
 #include <Z3ast.h>
 
@@ -329,6 +335,7 @@ void Z3ast::operator()(smt2lib::smtAstDecimalNode& e) {
 void Z3ast::operator()(smt2lib::smtAstDeclareNode& e) {
   throw std::runtime_error("smtAstDeclareNode not implemented");
 }
+
 
 void Z3ast::operator()(smt2lib::smtAstDistinctNode& e) {
   Z3Result op1 = this->eval(*e.getChilds()[0]);

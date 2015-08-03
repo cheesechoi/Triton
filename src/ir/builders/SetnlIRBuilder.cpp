@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -21,8 +27,8 @@ void SetnlIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 void SetnlIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *sf, *of;
-  uint64 reg     = this->operands[0].getValue();
-  uint64 regSize = this->operands[0].getSize();
+  auto reg = this->operands[0].getReg().getTritonRegId();
+  auto regSize = this->operands[0].getReg().getSize();
 
   /* Create the flag SMT semantic */
   sf = ap.buildSymbolicFlagOperand(ID_SF);
@@ -54,8 +60,8 @@ void SetnlIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 void SetnlIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *sf, *of;
-  uint64 mem     = this->operands[0].getValue();
-  uint64 memSize = this->operands[0].getSize();
+  auto mem = this->operands[0].getMem().getAddress();
+  auto memSize = this->operands[0].getMem().getSize();
 
   /* Create the flag SMT semantic */
   sf = ap.buildSymbolicFlagOperand(ID_SF);

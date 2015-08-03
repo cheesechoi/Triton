@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -13,14 +19,14 @@ CallIRBuilder::CallIRBuilder(uint64 address, const std::string &disassembly):
 }
 
 
-static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint64 writeSize)
+static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint64 memSize)
 {
-  SymbolicExpression    *se;
-  smt2lib::smtAstAbstractNode   *expr, *op1, *op2;
+  SymbolicExpression *se;
+  smt2lib::smtAstAbstractNode *expr, *op1, *op2;
 
   /* Create the SMT semantic */
-  op1 = ap.buildSymbolicRegOperand(ID_RSP, writeSize);
-  op2 = smt2lib::bv(REG_SIZE, writeSize * REG_SIZE);
+  op1 = ap.buildSymbolicRegOperand(ID_RSP, memSize);
+  op2 = smt2lib::bv(REG_SIZE, memSize * REG_SIZE);
 
   expr = smt2lib::bvsub(op1, op2);
 
@@ -37,23 +43,23 @@ static SymbolicExpression *alignStack(Inst &inst, AnalysisProcessor &ap, uint64 
 void CallIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr1, *expr2;
-  uint64 reg       = this->operands[0].getValue();
-  uint32 regSize   = this->operands[0].getSize();
-  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32 writeSize = this->operands[1].getSize();
+  auto reg = this->operands[0].getReg().getTritonRegId();
+  auto regSize = this->operands[0].getReg().getSize();
+  auto mem = this->operands[1].getMem().getAddress(); // The dst memory write
+  auto memSize = this->operands[1].getMem().getSize();
 
   /* Create the SMT semantic side effect */
-  alignStack(inst, ap, writeSize);
+  alignStack(inst, ap, memSize);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, memSize * REG_SIZE);
 
   /* Create the symbolic expression */
-  se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
+  se = ap.createMemSE(inst, expr1, mem, memSize, "Saved RIP");
 
   /* Apply the taint */
-  ap.assignmentSpreadTaintMemImm(se, memDst, writeSize);
+  ap.assignmentSpreadTaintMemImm(se, mem, memSize);
 
   /* Create the SMT semantic */
   /* RIP = reg */
@@ -70,26 +76,26 @@ void CallIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 void CallIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr1, *expr2;
-  uint64 imm       = this->operands[0].getValue();
-  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32 writeSize = this->operands[1].getSize();
+  auto imm = this->operands[0].getImm().getValue();
+  auto mem = this->operands[1].getMem().getAddress(); // The dst memory write
+  auto memSize = this->operands[1].getMem().getSize();
 
   /* Create the SMT semantic side effect */
-  alignStack(inst, ap, writeSize);
+  alignStack(inst, ap, memSize);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, memSize * REG_SIZE);
 
   /* Create the symbolic expression */
-  se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
+  se = ap.createMemSE(inst, expr1, mem, memSize, "Saved RIP");
 
   /* Apply the taint */
-  ap.assignmentSpreadTaintMemImm(se, memDst, writeSize);
+  ap.assignmentSpreadTaintMemImm(se, mem, memSize);
 
   /* Create the SMT semantic */
   /* RIP = imm */
-  expr2 = smt2lib::bv(imm, writeSize * REG_SIZE);
+  expr2 = smt2lib::bv(imm, memSize * REG_SIZE);
 
   /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr2, ID_RIP, REG_SIZE, "RIP");
@@ -102,27 +108,27 @@ void CallIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 void CallIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr1, *expr2;
-  uint64 mem       = this->operands[0].getValue();
-  uint64 memSize   = this->operands[0].getSize();
-  uint64 memDst    = this->operands[1].getValue(); // The dst memory write
-  uint32 writeSize = this->operands[1].getSize();
+  auto mem1 = this->operands[0].getMem().getAddress();
+  auto memSize1 = this->operands[0].getMem().getSize();
+  auto mem2 = this->operands[1].getMem().getAddress(); // The dst memory write
+  auto memSize2 = this->operands[1].getMem().getSize();
 
   /* Create the SMT semantic side effect */
-  alignStack(inst, ap, writeSize);
+  alignStack(inst, ap, memSize2);
 
   /* Create the SMT semantic */
   /* *RSP =  Next_RIP */
-  expr1 = smt2lib::bv(this->nextAddress, writeSize * REG_SIZE);
+  expr1 = smt2lib::bv(this->nextAddress, memSize2 * REG_SIZE);
 
   /* Create the symbolic expression */
-  se = ap.createMemSE(inst, expr1, memDst, writeSize, "Saved RIP");
+  se = ap.createMemSE(inst, expr1, mem2, memSize2, "Saved RIP");
 
   /* Apply the taint */
-  ap.assignmentSpreadTaintMemImm(se, memDst, writeSize);
+  ap.assignmentSpreadTaintMemImm(se, mem2, memSize2);
 
   /* Create the SMT semantic */
   /* RIP = imm */
-  expr2 = ap.buildSymbolicMemOperand(mem, memSize);
+  expr2 = ap.buildSymbolicMemOperand(mem1, memSize1);
 
   /* Create the symbolic expression */
   se = ap.createRegSE(inst, expr2, ID_RIP, REG_SIZE, "RIP");

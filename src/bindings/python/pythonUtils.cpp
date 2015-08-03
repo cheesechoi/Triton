@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <stdexcept>
 
@@ -10,8 +16,7 @@
 // Based on python-2.7/blob/master/Objects/longobject.c
 
 
-uint128 PyLongObjectToUint128(PyObject *vv)
-{
+uint128 PyLongObjectToUint128(PyObject *vv) {
   register PyLongObject *v;
   uint128 x, prev;
   Py_ssize_t i;
@@ -43,8 +48,7 @@ uint128 PyLongObjectToUint128(PyObject *vv)
 }
 
 
-PyObject *uint128ToPyLongObject(uint128 value)
-{
+PyObject *uint128ToPyLongObject(uint128 value) {
   PyLongObject *v;
   uint128 t;
   int ndigits = 0;
@@ -67,8 +71,7 @@ PyObject *uint128ToPyLongObject(uint128 value)
   return (PyObject *)v;
 }
 
-PyObject *uint512ToPyLongObject(uint512 value)
-{
+PyObject *uint512ToPyLongObject(uint512 value) {
   PyLongObject *v;
   uint512 t = 0;
   int ndigits = 0;

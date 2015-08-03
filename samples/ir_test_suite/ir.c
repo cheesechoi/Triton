@@ -16,10 +16,28 @@ void check(void)
   asm("mov ax, 0x99");
   asm("mov eax, 0x99");
 
+  asm("mov rdx, 4");
+  asm("mov rcx, 5");
+  asm("xadd rdx, rcx");
+
   asm("mov rax, -1");
   asm("xor al, 0x99");
   asm("xor ax, 0x99");
   asm("xor eax, 0x99");
+
+  asm("mov rdx, 18446744073709551615");
+  asm("shr rdx, 0x1");
+
+  asm("xor rdx, rdx");
+  asm("mov rcx, 1024");
+  asm("div rcx");
+
+  //asm("mov rax, -1");
+  //asm("or ah, 0x8");
+  //asm("mov rax, 12345");
+  //asm("or ah, 0x8");
+  //asm("mov rax, 4222427780");
+  //asm("or ah, 0x8");
 
   asm("clc");
   asm("cld");
@@ -32,11 +50,16 @@ void check(void)
   asm("mov rax, 2");
   asm("mov rcx, qword ptr [rsp+rax*1]");
   asm("mov qword ptr [rsp+rax*1], rcx");
+  asm("clc");
+  asm("add ecx, ebx");
+  asm("stc");
   asm("add ecx, ebx");
   asm("adc eax, ecx");
   asm("inc eax");
   asm("test eax, eax");
   asm("sbb eax, ecx");
+  asm("mov rax, 27577336");
+  asm("sbb eax, eax");
   asm("cmp ecx, eax");
   asm("mov ecx, 3");
   asm("mov ebx, 5");
@@ -93,6 +116,13 @@ void check(void)
   asm("idiv cx");
   asm("idiv ecx");
   asm("idiv rcx");
+  asm("idiv rcx");
+
+  asm("xor rdx, rdx");
+  asm("mov rcx, 1024");
+  asm("div rcx");
+  asm("mov rbx, 16");
+  asm("div rbx");
 
   asm("mov rax, 1");
   asm("mov rcx, 2");

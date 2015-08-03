@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <python2.7/Python.h>
 #include <xed-iclass-enum.h>
@@ -5,8 +11,7 @@
 #include <PythonBindings.h>
 
 
-void initOpcodeEnv(PyObject *idOpcodeClassDict)
-{
+void initOpcodeEnv(PyObject *idOpcodeClassDict) {
   PyDict_SetItemString(idOpcodeClassDict, "INVALID", PyInt_FromLong(XED_ICLASS_INVALID));
   PyDict_SetItemString(idOpcodeClassDict, "AAA", PyInt_FromLong(XED_ICLASS_AAA));
   PyDict_SetItemString(idOpcodeClassDict, "AAD", PyInt_FromLong(XED_ICLASS_AAD));

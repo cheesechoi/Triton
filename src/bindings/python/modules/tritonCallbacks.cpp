@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <list>
 #include <map>
@@ -46,8 +52,7 @@ namespace PyTritonOptions {
 
 
 static char Triton_addCallback_doc[] = "Adds a callback for each instruction instrumented";
-static PyObject *Triton_addCallback(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_addCallback(PyObject *self, PyObject *args) {
   PyObject *function;
   PyObject *flag;
   PyObject *routine = nullptr;
@@ -105,8 +110,7 @@ static PyObject *Triton_addCallback(PyObject *self, PyObject *args)
 
 
 static char Triton_checkReadAccess_doc[] = "Checks whether the memory page which contains this address has a read access protection";
-static PyObject *Triton_checkReadAccess(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_checkReadAccess(PyObject *self, PyObject *addr) {
   uint64 ad;
 
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
@@ -121,8 +125,7 @@ static PyObject *Triton_checkReadAccess(PyObject *self, PyObject *addr)
 
 
 static char Triton_checkWriteAccess_doc[] = "Checks whether the memory page which contains this address has a write access protection";
-static PyObject *Triton_checkWriteAccess(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_checkWriteAccess(PyObject *self, PyObject *addr) {
   uint64 ad;
 
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
@@ -137,24 +140,21 @@ static PyObject *Triton_checkWriteAccess(PyObject *self, PyObject *addr)
 
 
 static char Triton_concretizeAllMem_doc[] = "Concretize all memory reference";
-static PyObject *Triton_concretizeAllMem(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_concretizeAllMem(PyObject *self, PyObject *noarg) {
   ap.concretizeAllMem();
   Py_RETURN_TRUE;
 }
 
 
 static char Triton_concretizeAllReg_doc[] = "Concretize all registers reference";
-static PyObject *Triton_concretizeAllReg(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_concretizeAllReg(PyObject *self, PyObject *noarg) {
   ap.concretizeAllReg();
   Py_RETURN_TRUE;
 }
 
 
 static char Triton_concretizeMem_doc[] = "Concretize a memory reference";
-static PyObject *Triton_concretizeMem(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_concretizeMem(PyObject *self, PyObject *addr) {
   uint64 ad;
 
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
@@ -168,8 +168,7 @@ static PyObject *Triton_concretizeMem(PyObject *self, PyObject *addr)
 
 
 static char Triton_concretizeReg_doc[] = "Concretize a register reference";
-static PyObject *Triton_concretizeReg(PyObject *self, PyObject *regId)
-{
+static PyObject *Triton_concretizeReg(PyObject *self, PyObject *regId) {
   uint64 reg;
 
   if (!PyLong_Check(regId) && !PyInt_Check(regId))
@@ -183,8 +182,7 @@ static PyObject *Triton_concretizeReg(PyObject *self, PyObject *regId)
 
 
 static char Triton_convertExprToSymVar_doc[] = "Converts an expression to a symbolic variable";
-static PyObject *Triton_convertExprToSymVar(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_convertExprToSymVar(PyObject *self, PyObject *args) {
   PyObject *exprId, *symVarSize, *varComment = nullptr;
   uint64 vs, ei;
   std::string vc;
@@ -213,8 +211,7 @@ static PyObject *Triton_convertExprToSymVar(PyObject *self, PyObject *args)
 
 
 static char Triton_convertMemToSymVar_doc[] = "Converts a memory address to a symbolic variable";
-static PyObject *Triton_convertMemToSymVar(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_convertMemToSymVar(PyObject *self, PyObject *args) {
   PyObject *memAddr, *symVarSize, *varComment = nullptr;
   uint64 vs, ma;
   std::string vc;
@@ -243,8 +240,7 @@ static PyObject *Triton_convertMemToSymVar(PyObject *self, PyObject *args)
 
 
 static char Triton_convertRegToSymVar_doc[] = "Converts a register to a symbolic variable";
-static PyObject *Triton_convertRegToSymVar(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_convertRegToSymVar(PyObject *self, PyObject *args) {
   PyObject *regId, *symVarSize, *varComment = nullptr;
   uint64 vs, ri;
   std::string vc;
@@ -273,8 +269,7 @@ static PyObject *Triton_convertRegToSymVar(PyObject *self, PyObject *args)
 
 
 static char Triton_disableSnapshot_doc[] = "Disables the snapshot engine";
-static PyObject *Triton_disableSnapshot(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_disableSnapshot(PyObject *self, PyObject *noarg) {
   ap.disableSnapshot();
   Py_INCREF(Py_None);
   return Py_None;
@@ -282,8 +277,7 @@ static PyObject *Triton_disableSnapshot(PyObject *self, PyObject *noarg)
 
 
 static char Triton_evaluateAST_doc[] = "Evaluate an AST";
-static PyObject *Triton_evaluateAST(PyObject *self, PyObject *smtAST)
-{
+static PyObject *Triton_evaluateAST(PyObject *self, PyObject *smtAST) {
   uint512 value = 0;
 
   if (!PySmtAstNode_Check(smtAST))
@@ -296,8 +290,7 @@ static PyObject *Triton_evaluateAST(PyObject *self, PyObject *smtAST)
 
 
 static char Triton_getFullExpression_doc[] = "Returns the full symbolic expression backtracked";
-static PyObject *Triton_getFullExpression(PyObject *self, PyObject *node)
-{
+static PyObject *Triton_getFullExpression(PyObject *self, PyObject *node) {
   smt2lib::smtAstAbstractNode *fullExpr;
 
   if (!PySmtAstNode_Check(node))
@@ -314,8 +307,7 @@ static PyObject *Triton_getFullExpression(PyObject *self, PyObject *node)
 
 
 static char Triton_getMemSymbolicID_doc[] = "Gets the symbolic memory reference";
-static PyObject *Triton_getMemSymbolicID(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_getMemSymbolicID(PyObject *self, PyObject *addr) {
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
     return PyErr_Format(PyExc_TypeError, "getMemSymbolicID(): expected a memory address (integer) as argument");
 
@@ -324,8 +316,7 @@ static PyObject *Triton_getMemSymbolicID(PyObject *self, PyObject *addr)
 
 
 static char Triton_getMemValue_doc[] = "Gets the current value of the memory";
-static PyObject *Triton_getMemValue(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_getMemValue(PyObject *self, PyObject *args) {
   PyObject *addr;
   PyObject *readSize;
   uint64 ad;
@@ -356,8 +347,7 @@ static PyObject *Triton_getMemValue(PyObject *self, PyObject *args)
 
 
 static char Triton_getModel_doc[] = "Returns a model of the symbolic expression";
-static PyObject *Triton_getModel(PyObject *self, PyObject *node)
-{
+static PyObject *Triton_getModel(PyObject *self, PyObject *node) {
   std::list<Smodel>::iterator it;
   std::list<Smodel> model;
 
@@ -377,8 +367,7 @@ static PyObject *Triton_getModel(PyObject *self, PyObject *node)
 
 
 static char Triton_getModels_doc[] = "Returns all models of the symbolic expression";
-static PyObject *Triton_getModels(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_getModels(PyObject *self, PyObject *args) {
   PyObject                        *node = nullptr;
   PyObject                        *limit;
   PyObject                        *modelsList;
@@ -420,8 +409,7 @@ static PyObject *Triton_getModels(PyObject *self, PyObject *args)
 
 
 static char Triton_getPathConstraints_doc[] = "Returns the list of path constraints";
-static PyObject *Triton_getPathConstraints(PyObject *self, PyObject *noargs)
-{
+static PyObject *Triton_getPathConstraints(PyObject *self, PyObject *noargs) {
   PyObject                        *ppc;
   std::list<uint64>               pc;
   std::list<uint64>::iterator     it;
@@ -442,8 +430,7 @@ static PyObject *Triton_getPathConstraints(PyObject *self, PyObject *noargs)
 
 
 static char Triton_getRegName_doc[] = "Gets the register name";
-static PyObject *Triton_getRegName(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_getRegName(PyObject *self, PyObject *reg) {
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
     return PyErr_Format(PyExc_TypeError, "getRegName(): expected a register id (integer) as argument");
 
@@ -452,8 +439,7 @@ static PyObject *Triton_getRegName(PyObject *self, PyObject *reg)
 
 
 static char Triton_getRegSymbolicID_doc[] = "Gets the symbolic register reference";
-static PyObject *Triton_getRegSymbolicID(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_getRegSymbolicID(PyObject *self, PyObject *reg) {
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
     return PyErr_Format(PyExc_TypeError, "getRegSymbolicID(): expected a register id (integer) as argument");
 
@@ -462,8 +448,7 @@ static PyObject *Triton_getRegSymbolicID(PyObject *self, PyObject *reg)
 
 
 static char Triton_getRegValue_doc[] = "Gets the current value of the register";
-static PyObject *Triton_getRegValue(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_getRegValue(PyObject *self, PyObject *reg) {
   uint64 tritonReg;
 
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
@@ -484,8 +469,7 @@ static PyObject *Triton_getRegValue(PyObject *self, PyObject *reg)
 
 
 static char Triton_getFlagValue_doc[] = "Gets the current value of the flag";
-static PyObject *Triton_getFlagValue(PyObject *self, PyObject *flag)
-{
+static PyObject *Triton_getFlagValue(PyObject *self, PyObject *flag) {
   uint64 tritonFlag;
 
   if (!PyLong_Check(flag) && !PyInt_Check(flag))
@@ -501,8 +485,7 @@ static PyObject *Triton_getFlagValue(PyObject *self, PyObject *flag)
 
 
 static char Triton_getRegs_doc[] = "Returns informations about all registers";
-static PyObject *Triton_getRegs(PyObject *self, PyObject *noargs)
-{
+static PyObject *Triton_getRegs(PyObject *self, PyObject *noargs) {
   PyObject *regs = xPyDict_New();
 
   /* Build all Registers */
@@ -529,8 +512,7 @@ static PyObject *Triton_getRegs(PyObject *self, PyObject *noargs)
 
 
 static char Triton_getStats_doc[] = "Returns statistics of the execution";
-static PyObject *Triton_getStats(PyObject *self, PyObject *noargs)
-{
+static PyObject *Triton_getStats(PyObject *self, PyObject *noargs) {
   PyObject *stats = xPyDict_New();
   PyDict_SetItemString(stats, "branches",     PyLong_FromLong(ap.getNumberOfBranchesTaken()));
   PyDict_SetItemString(stats, "expressions",  PyLong_FromLong(ap.getNumberOfExpressions()));
@@ -541,8 +523,7 @@ static PyObject *Triton_getStats(PyObject *self, PyObject *noargs)
 
 
 static char Triton_getSymExpr_doc[] = "Returns a SymbolicExpression class corresponding to the symbolic expression ID.";
-static PyObject *Triton_getSymExpr(PyObject *self, PyObject *id)
-{
+static PyObject *Triton_getSymExpr(PyObject *self, PyObject *id) {
   uint64              exprId;
   SymbolicExpression  *expr;
 
@@ -560,8 +541,7 @@ static PyObject *Triton_getSymExpr(PyObject *self, PyObject *id)
 
 
 static char Triton_getSymExprs_doc[] = "Returns all SymbolicExpression class.";
-static PyObject *Triton_getSymExprs(PyObject *self, PyObject *noargs)
-{
+static PyObject *Triton_getSymExprs(PyObject *self, PyObject *noargs) {
   PyObject                          *ret;
   std::vector<SymbolicExpression *> exprs;
   uint64                            numberOfExprs = 0;
@@ -577,8 +557,7 @@ static PyObject *Triton_getSymExprs(PyObject *self, PyObject *noargs)
 
 
 static char Triton_getSymVar_doc[] = "Returns the symbolic variable class";
-static PyObject *Triton_getSymVar(PyObject *self, PyObject *symVarPy)
-{
+static PyObject *Triton_getSymVar(PyObject *self, PyObject *symVarPy) {
   SymbolicVariable *symVar;
 
   if (!PyLong_Check(symVarPy) && !PyInt_Check(symVarPy) && !PyString_Check(symVarPy))
@@ -597,8 +576,7 @@ static PyObject *Triton_getSymVar(PyObject *self, PyObject *symVarPy)
 
 
 static char Triton_getSymVarSize_doc[] = "Returns the size of the symbolic variable";
-static PyObject *Triton_getSymVarSize(PyObject *self, PyObject *symVarPy)
-{
+static PyObject *Triton_getSymVarSize(PyObject *self, PyObject *symVarPy) {
   SymbolicVariable *symVar;
 
   if (!PyLong_Check(symVarPy) && !PyInt_Check(symVarPy) && !PyString_Check(symVarPy))
@@ -617,8 +595,7 @@ static PyObject *Triton_getSymVarSize(PyObject *self, PyObject *symVarPy)
 
 
 static char Triton_getSymVars_doc[] = "Returns the list of symbolic variables";
-static PyObject *Triton_getSymVars(PyObject *self, PyObject *noArg)
-{
+static PyObject *Triton_getSymVars(PyObject *self, PyObject *noArg) {
   std::vector<SymbolicVariable *> symVars;
   std::vector<SymbolicVariable *>::iterator it;
   PyObject *symVarsList;
@@ -637,8 +614,7 @@ static PyObject *Triton_getSymVars(PyObject *self, PyObject *noArg)
 
 
 static char Triton_getSyscallArgument_doc[] = "Returns the syscall argument.";
-static PyObject *Triton_getSyscallArgument(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_getSyscallArgument(PyObject *self, PyObject *args) {
   PyObject *num;
   PyObject *std;
   uint64 ret;
@@ -662,8 +638,7 @@ static PyObject *Triton_getSyscallArgument(PyObject *self, PyObject *args)
 
 
 static char Triton_getSyscallNumber_doc[] = "Returns the syscall number. This function must be called inside the syscall entry callback. Otherwise returns results in undefined behavior.";
-static PyObject *Triton_getSyscallNumber(PyObject *self, PyObject *std)
-{
+static PyObject *Triton_getSyscallNumber(PyObject *self, PyObject *std) {
   uint64 syscallNumber;
 
   if (!PyLong_Check(std) && !PyInt_Check(std))
@@ -679,8 +654,7 @@ static PyObject *Triton_getSyscallNumber(PyObject *self, PyObject *std)
 
 
 static char Triton_getSyscallReturn_doc[] = "Returns the syscall return value.";
-static PyObject *Triton_getSyscallReturn(PyObject *self, PyObject *std)
-{
+static PyObject *Triton_getSyscallReturn(PyObject *self, PyObject *std) {
   uint64 ret;
 
   if (!PyLong_Check(std) && !PyInt_Check(std))
@@ -696,8 +670,7 @@ static PyObject *Triton_getSyscallReturn(PyObject *self, PyObject *std)
 
 
 static char Triton_getTaintedExpressions_doc[] = "Returns a list which contains all tainted symbolic expressions";
-static PyObject *Triton_getTaintedExpressions(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_getTaintedExpressions(PyObject *self, PyObject *noarg) {
   PyObject                                  *ret;
   std::list<SymbolicExpression *>           exprs;
   std::list<SymbolicExpression *>::iterator it;
@@ -717,8 +690,7 @@ static PyObject *Triton_getTaintedExpressions(PyObject *self, PyObject *noarg)
 
 
 static char Triton_isMemTainted_doc[] = "Checks if the memory is tainted";
-static PyObject *Triton_isMemTainted(PyObject *self, PyObject *mem)
-{
+static PyObject *Triton_isMemTainted(PyObject *self, PyObject *mem) {
   if (!PyLong_Check(mem) && !PyInt_Check(mem))
     return PyErr_Format(PyExc_TypeError, "isMemTainted(): expected an address (integer) as argument");
 
@@ -730,8 +702,7 @@ static PyObject *Triton_isMemTainted(PyObject *self, PyObject *mem)
 
 
 static char Triton_isRegTainted_doc[] = "Checks if the register is tainted";
-static PyObject *Triton_isRegTainted(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_isRegTainted(PyObject *self, PyObject *reg) {
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
     return PyErr_Format(PyExc_TypeError, "isRegTainted(): expected a register id (integer) as argument");
 
@@ -743,8 +714,7 @@ static PyObject *Triton_isRegTainted(PyObject *self, PyObject *reg)
 
 
 static char Triton_isSnapshotEnabled_doc[] = "Returns true if the snapshot is enabled";
-static PyObject *Triton_isSnapshotEnabled(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_isSnapshotEnabled(PyObject *self, PyObject *noarg) {
   if (ap.isSnapshotEnabled() == true)
     Py_RETURN_TRUE;
   Py_RETURN_FALSE;
@@ -752,8 +722,7 @@ static PyObject *Triton_isSnapshotEnabled(PyObject *self, PyObject *noarg)
 
 
 static char Triton_opcodeToString_doc[] = "Returns a string with the opcode of the instruction";
-static PyObject *Triton_opcodeToString(PyObject *self, PyObject *opcode)
-{
+static PyObject *Triton_opcodeToString(PyObject *self, PyObject *opcode) {
   if (!PyLong_Check(opcode) && !PyInt_Check(opcode))
     return PyErr_Format(PyExc_TypeError, "opcodeToString(): expected an opcode (integer) as argument");
 
@@ -762,8 +731,7 @@ static PyObject *Triton_opcodeToString(PyObject *self, PyObject *opcode)
 
 
 static char Triton_restoreSnapshot_doc[] = "Restores the last snapshot";
-static PyObject *Triton_restoreSnapshot(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_restoreSnapshot(PyObject *self, PyObject *noarg) {
   ap.restoreSnapshot();
   Py_INCREF(Py_None);
   return Py_None;
@@ -771,8 +739,7 @@ static PyObject *Triton_restoreSnapshot(PyObject *self, PyObject *noarg)
 
 
 static char Triton_runProgram_doc[] = "Starts the Pin instrumentation";
-static PyObject *Triton_runProgram(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_runProgram(PyObject *self, PyObject *noarg) {
   // Never returns - Rock 'n roll baby \o/
   PIN_StartProgram();
   Py_INCREF(Py_None);
@@ -781,8 +748,7 @@ static PyObject *Triton_runProgram(PyObject *self, PyObject *noarg)
 
 
 static char Triton_setMemValue_doc[] = "Inserts value into the runtime memory";
-static PyObject *Triton_setMemValue(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_setMemValue(PyObject *self, PyObject *args) {
   PyObject  *addr;
   PyObject  *value;
   PyObject  *writeSize;
@@ -820,8 +786,7 @@ static PyObject *Triton_setMemValue(PyObject *self, PyObject *args)
 
 
 static char Triton_setRegValue_doc[] = "Inserts value into the current context register";
-static PyObject *Triton_setRegValue(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_setRegValue(PyObject *self, PyObject *args) {
   PyObject *reg;
   PyObject *value;
   uint128  va;
@@ -850,8 +815,7 @@ static PyObject *Triton_setRegValue(PyObject *self, PyObject *args)
 
 
 static char Triton_startAnalysisFromSymbol_doc[] = "Starts the symbolic execution from a specific name point";
-static PyObject *Triton_startAnalysisFromSymbol(PyObject *self, PyObject *name)
-{
+static PyObject *Triton_startAnalysisFromSymbol(PyObject *self, PyObject *name) {
 
   if (!PyString_Check(name))
     return PyErr_Format(PyExc_TypeError, "startAnalysisFromSymbol(): expected a string as argument");
@@ -863,8 +827,7 @@ static PyObject *Triton_startAnalysisFromSymbol(PyObject *self, PyObject *name)
 
 
 static char Triton_startAnalysisFromAddr_doc[] = "Starts the symbolic execution from a specific address";
-static PyObject *Triton_startAnalysisFromAddr(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_startAnalysisFromAddr(PyObject *self, PyObject *addr) {
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
     return PyErr_Format(PyExc_TypeError, "startAnalysisFromAddr(): expected an address (integer) as argument");
 
@@ -875,8 +838,7 @@ static PyObject *Triton_startAnalysisFromAddr(PyObject *self, PyObject *addr)
 
 
 static char Triton_startAnalysisFromOffset_doc[] = "Starts the symbolic execution from a specific offset in the binary";
-static PyObject *Triton_startAnalysisFromOffset(PyObject *self, PyObject *offset)
-{
+static PyObject *Triton_startAnalysisFromOffset(PyObject *self, PyObject *offset) {
   if (!PyLong_Check(offset) && !PyInt_Check(offset))
     return PyErr_Format(PyExc_TypeError, "startAnalysisFromOffset(): expected an offset (integer) as argument");
 
@@ -887,8 +849,7 @@ static PyObject *Triton_startAnalysisFromOffset(PyObject *self, PyObject *offset
 
 
 static char Triton_stopAnalysisFromAddr_doc[] = "Stops the symbolic execution from a specific address";
-static PyObject *Triton_stopAnalysisFromAddr(PyObject *self, PyObject *addr)
-{
+static PyObject *Triton_stopAnalysisFromAddr(PyObject *self, PyObject *addr) {
   if (!PyLong_Check(addr) && !PyInt_Check(addr))
     return PyErr_Format(PyExc_TypeError, "stopAnalysisFromAddr(): expected an address (integer) as argument");
 
@@ -899,8 +860,7 @@ static PyObject *Triton_stopAnalysisFromAddr(PyObject *self, PyObject *addr)
 
 
 static char Triton_stopAnalysisFromOffset_doc[] = "Stops the symbolic execution from a specific offset in the binary";
-static PyObject *Triton_stopAnalysisFromOffset(PyObject *self, PyObject *offset)
-{
+static PyObject *Triton_stopAnalysisFromOffset(PyObject *self, PyObject *offset) {
   if (!PyLong_Check(offset) && !PyInt_Check(offset))
     return PyErr_Format(PyExc_TypeError, "stopAnalysisFromOffset(): expected an offset (integer) as argument");
 
@@ -911,8 +871,7 @@ static PyObject *Triton_stopAnalysisFromOffset(PyObject *self, PyObject *offset)
 
 
 static char Triton_syscallToString_doc[] = "Returns the syscall string from a syscall number";
-static PyObject *Triton_syscallToString(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_syscallToString(PyObject *self, PyObject *args) {
   PyObject *std;
   PyObject *num;
 
@@ -942,8 +901,7 @@ static PyObject *Triton_syscallToString(PyObject *self, PyObject *args)
 
 
 static char Triton_taintMem_doc[] = "Taints an address memory";
-static PyObject *Triton_taintMem(PyObject *self, PyObject *mem)
-{
+static PyObject *Triton_taintMem(PyObject *self, PyObject *mem) {
   if (!PyLong_Check(mem) && !PyInt_Check(mem))
     return PyErr_Format(PyExc_TypeError, "TaintMem(): expected a memory address (integer) as argument");
 
@@ -954,8 +912,7 @@ static PyObject *Triton_taintMem(PyObject *self, PyObject *mem)
 
 
 static char Triton_taintMemFromAddr_doc[] = "Taints specific memory address from an address";
-static PyObject *Triton_taintMemFromAddr(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_taintMemFromAddr(PyObject *self, PyObject *args) {
   PyObject *addr;
   PyObject *mems;
   std::list<uint64> memsList;
@@ -989,8 +946,7 @@ static PyObject *Triton_taintMemFromAddr(PyObject *self, PyObject *args)
 
 
 static char Triton_taintReg_doc[] = "Taints a register";
-static PyObject *Triton_taintReg(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_taintReg(PyObject *self, PyObject *reg) {
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
     return PyErr_Format(PyExc_TypeError, "taintReg(): expected a register id (integer) as argument");
 
@@ -1001,8 +957,7 @@ static PyObject *Triton_taintReg(PyObject *self, PyObject *reg)
 
 
 static char Triton_taintRegFromAddr_doc[] = "Taints specific registers from an address";
-static PyObject *Triton_taintRegFromAddr(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_taintRegFromAddr(PyObject *self, PyObject *args) {
   PyObject *addr;
   PyObject *regs;
   std::list<uint64> regsList;
@@ -1036,8 +991,7 @@ static PyObject *Triton_taintRegFromAddr(PyObject *self, PyObject *args)
 
 
 static char Triton_takeSnapshot_doc[] = "Takes a snapshot of the registers states and memory";
-static PyObject *Triton_takeSnapshot(PyObject *self, PyObject *noarg)
-{
+static PyObject *Triton_takeSnapshot(PyObject *self, PyObject *noarg) {
   ap.takeSnapshot();
   Py_INCREF(Py_None);
   return Py_None;
@@ -1045,8 +999,7 @@ static PyObject *Triton_takeSnapshot(PyObject *self, PyObject *noarg)
 
 
 static char Triton_untaintMem_doc[] = "Untaints an address memory";
-static PyObject *Triton_untaintMem(PyObject *self, PyObject *mem)
-{
+static PyObject *Triton_untaintMem(PyObject *self, PyObject *mem) {
   if (!PyLong_Check(mem) && !PyInt_Check(mem))
     return PyErr_Format(PyExc_TypeError, "untaintMem(): expected a memory address (integer) as argument");
 
@@ -1057,8 +1010,7 @@ static PyObject *Triton_untaintMem(PyObject *self, PyObject *mem)
 
 
 static char Triton_untaintMemFromAddr_doc[] = "Untaints specific memory addresses from an address";
-static PyObject *Triton_untaintMemFromAddr(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_untaintMemFromAddr(PyObject *self, PyObject *args) {
   PyObject *addr;
   PyObject *mems;
   std::list<uint64> memsList;
@@ -1094,8 +1046,7 @@ static PyObject *Triton_untaintMemFromAddr(PyObject *self, PyObject *args)
 
 
 static char Triton_untaintReg_doc[] = "Untaints a register";
-static PyObject *Triton_untaintReg(PyObject *self, PyObject *reg)
-{
+static PyObject *Triton_untaintReg(PyObject *self, PyObject *reg) {
   if (!PyLong_Check(reg) && !PyInt_Check(reg))
     return PyErr_Format(PyExc_TypeError, "untaintReg(): expected a register id (integer) as argument");
 
@@ -1106,8 +1057,7 @@ static PyObject *Triton_untaintReg(PyObject *self, PyObject *reg)
 
 
 static char Triton_untaintRegFromAddr_doc[] = "Untaints specific registers from an address";
-static PyObject *Triton_untaintRegFromAddr(PyObject *self, PyObject *args)
-{
+static PyObject *Triton_untaintRegFromAddr(PyObject *self, PyObject *args) {
   PyObject *addr;
   PyObject *regs;
   std::list<uint64> regsList;

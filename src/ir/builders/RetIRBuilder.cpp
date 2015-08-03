@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -64,12 +70,12 @@ void RetIRBuilder::reg(AnalysisProcessor &ap, Inst &inst) const {
 void RetIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *op1;
-  uint64 imm       = this->operands[0].getValue();
-  uint64 memSrc    = this->operands[1].getValue(); // The dst memory read
-  uint32 readSize  = this->operands[1].getSize();
+  auto imm = this->operands[0].getImm().getValue();
+  auto mem = this->operands[1].getMem().getAddress(); // The dst memory read
+  auto memSize = this->operands[1].getMem().getSize();
 
   /* Create the SMT semantic */
-  op1 = ap.buildSymbolicMemOperand(memSrc, readSize);
+  op1 = ap.buildSymbolicMemOperand(mem, memSize);
 
   /* Finale expr */
   expr = op1;
@@ -78,7 +84,7 @@ void RetIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
   se = ap.createRegSE(inst, expr, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
-  ap.assignmentSpreadTaintRegMem(se, ID_RIP, memSrc, readSize);
+  ap.assignmentSpreadTaintRegMem(se, ID_RIP, mem, memSize);
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap);
@@ -89,11 +95,11 @@ void RetIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 void RetIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *op1;
-  uint64 memSrc    = this->operands[0].getValue(); // The dst memory read
-  uint32 readSize  = this->operands[0].getSize();
+  auto mem = this->operands[0].getMem().getAddress(); // The dst memory read
+  auto memSize = this->operands[0].getMem().getSize();
 
   /* Create the SMT semantic */
-  op1 = ap.buildSymbolicMemOperand(memSrc, readSize);
+  op1 = ap.buildSymbolicMemOperand(mem, memSize);
 
   /* Finale expr */
   expr = op1;
@@ -102,7 +108,7 @@ void RetIRBuilder::mem(AnalysisProcessor &ap, Inst &inst) const {
   se = ap.createRegSE(inst, expr, ID_RIP, REG_SIZE, "RIP");
 
   /* Apply the taint */
-  ap.assignmentSpreadTaintRegMem(se, ID_RIP, memSrc, readSize);
+  ap.assignmentSpreadTaintRegMem(se, ID_RIP, mem, memSize);
 
   /* Create the SMT semantic side effect */
   alignStack(inst, ap);

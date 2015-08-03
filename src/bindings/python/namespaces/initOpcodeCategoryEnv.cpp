@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <python2.7/Python.h>
 
@@ -5,8 +11,7 @@
 #include <xed-category-enum.h>
 
 
-void initOpcodeCategoryEnv(PyObject *idOpcodeCategoryClassDict)
-{
+void initOpcodeCategoryEnv(PyObject *idOpcodeCategoryClassDict) {
   PyDict_SetItemString(idOpcodeCategoryClassDict, "INVALID", PyInt_FromLong(XED_CATEGORY_INVALID));
   PyDict_SetItemString(idOpcodeCategoryClassDict, "3DNOW", PyInt_FromLong(XED_CATEGORY_3DNOW));
   PyDict_SetItemString(idOpcodeCategoryClassDict, "AES", PyInt_FromLong(XED_CATEGORY_AES));

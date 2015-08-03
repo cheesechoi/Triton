@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -16,7 +22,7 @@ JsIRBuilder::JsIRBuilder(uint64 address, const std::string &disassembly):
 void JsIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *sf;
-  uint64 imm   = this->operands[0].getValue();
+  auto imm = this->operands[0].getImm().getValue();
 
   /* Create the SMT semantic */
   sf = ap.buildSymbolicFlagOperand(ID_SF);

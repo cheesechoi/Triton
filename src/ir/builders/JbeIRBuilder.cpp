@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -16,7 +22,7 @@ JbeIRBuilder::JbeIRBuilder(uint64 address, const std::string &disassembly):
 void JbeIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
   SymbolicExpression *se;
   smt2lib::smtAstAbstractNode *expr, *cf, *zf;
-  uint64 imm   = this->operands[0].getValue();
+  auto imm = this->operands[0].getImm().getValue();
 
   /* Create the SMT semantic */
   cf = ap.buildSymbolicFlagOperand(ID_CF);
@@ -24,8 +30,8 @@ void JbeIRBuilder::imm(AnalysisProcessor &ap, Inst &inst) const {
 
   /* 
    * Finale expr
-   * JNBE: Jump if below or equal (CF=1 or ZF=1).
-   * SMT: (= (bvor zf cf) (_ bv1 1))
+   * JNBE: Jump if below or equal (CF =1 or ZF =1).
+   * SMT: ( = (bvor zf cf) (_ bv1 1))
    */
   expr = smt2lib::ite(
             smt2lib::equal(
