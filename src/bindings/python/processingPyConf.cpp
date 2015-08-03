@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <ProcessingPyConf.h>
 #include <TritonPyObject.h>
@@ -5,52 +11,45 @@
 
 
 
-ProcessingPyConf::ProcessingPyConf(AnalysisProcessor *ap, Trigger *analysisTrigger)
-{
+ProcessingPyConf::ProcessingPyConf(AnalysisProcessor *ap, Trigger *analysisTrigger) {
   this->ap = ap;
   this->analysisTrigger = analysisTrigger;
 }
 
 
-ProcessingPyConf::~ProcessingPyConf()
-{
+ProcessingPyConf::~ProcessingPyConf() {
 }
 
 
-void ProcessingPyConf::startAnalysisFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::startAnalysisFromAddr(IRBuilder *irb) {
   // Check if the DSE must be start at this address
   if (PyTritonOptions::startAnalysisFromAddr.find(irb->getAddress()) != PyTritonOptions::startAnalysisFromAddr.end())
     this->analysisTrigger->update(true);
 }
 
 
-void ProcessingPyConf::startAnalysisFromOffset(IRBuilder *irb)
-{
+void ProcessingPyConf::startAnalysisFromOffset(IRBuilder *irb) {
   // Check if the DSE must be start at this offset
   if (PyTritonOptions::startAnalysisFromOffset.find(irb->getOffset()) != PyTritonOptions::startAnalysisFromOffset.end())
     this->analysisTrigger->update(true);
 }
 
 
-void ProcessingPyConf::stopAnalysisFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::stopAnalysisFromAddr(IRBuilder *irb) {
   // Check if the DSE must be stop at this address
   if (PyTritonOptions::stopAnalysisFromAddr.find(irb->getAddress()) != PyTritonOptions::stopAnalysisFromAddr.end())
     this->analysisTrigger->update(false);
 }
 
 
-void ProcessingPyConf::stopAnalysisFromOffset(IRBuilder *irb)
-{
+void ProcessingPyConf::stopAnalysisFromOffset(IRBuilder *irb) {
   // Check if the DSE must be stop at this offset
   if (PyTritonOptions::stopAnalysisFromOffset.find(irb->getOffset()) != PyTritonOptions::stopAnalysisFromOffset.end())
     this->analysisTrigger->update(false);
 }
 
 
-void ProcessingPyConf::taintMemFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::taintMemFromAddr(IRBuilder *irb) {
   // Apply this bindings only if the analysis is enable
   if (!this->analysisTrigger->getState())
     return;
@@ -63,8 +62,7 @@ void ProcessingPyConf::taintMemFromAddr(IRBuilder *irb)
 }
 
 
-void ProcessingPyConf::taintRegFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::taintRegFromAddr(IRBuilder *irb) {
   // Apply this bindings only if the analysis is enable
   if (!this->analysisTrigger->getState())
     return;
@@ -77,8 +75,7 @@ void ProcessingPyConf::taintRegFromAddr(IRBuilder *irb)
 }
 
 
-void ProcessingPyConf::untaintMemFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::untaintMemFromAddr(IRBuilder *irb) {
   // Apply this bindings only if the analysis is enable
   if (!this->analysisTrigger->getState())
     return;
@@ -91,8 +88,7 @@ void ProcessingPyConf::untaintMemFromAddr(IRBuilder *irb)
 }
 
 
-void ProcessingPyConf::untaintRegFromAddr(IRBuilder *irb)
-{
+void ProcessingPyConf::untaintRegFromAddr(IRBuilder *irb) {
   // Apply this bindings only if the analysis is enable
   if (!this->analysisTrigger->getState())
     return;
@@ -109,8 +105,7 @@ void ProcessingPyConf::untaintRegFromAddr(IRBuilder *irb)
  * When a callback is setup (triton.addCallback()), a class (Instruction) is
  * sent to the callback function as unique argument.
  */
-void ProcessingPyConf::callbackAfter(Inst *inst, AnalysisProcessor *ap)
-{
+void ProcessingPyConf::callbackAfter(Inst *inst, AnalysisProcessor *ap) {
   // Check if there is a callback wich must be called at each instruction instrumented
   if (this->analysisTrigger->getState() && PyTritonOptions::callbackAfter){
 
@@ -132,8 +127,7 @@ void ProcessingPyConf::callbackAfter(Inst *inst, AnalysisProcessor *ap)
 }
 
 
-void ProcessingPyConf::callbackBefore(Inst *inst, AnalysisProcessor *ap)
-{
+void ProcessingPyConf::callbackBefore(Inst *inst, AnalysisProcessor *ap) {
   // Check if there is a callback wich must be called at each instruction instrumented
   if (this->analysisTrigger->getState() && PyTritonOptions::callbackBefore){
 
@@ -155,8 +149,7 @@ void ProcessingPyConf::callbackBefore(Inst *inst, AnalysisProcessor *ap)
 }
 
 
-void ProcessingPyConf::callbackBeforeIRProc(IRBuilder *irb, AnalysisProcessor *ap)
-{
+void ProcessingPyConf::callbackBeforeIRProc(IRBuilder *irb, AnalysisProcessor *ap) {
   // Check if there is a callback wich must be called at each instruction instrumented
   if (this->analysisTrigger->getState() && PyTritonOptions::callbackBeforeIRProc){
 
@@ -178,8 +171,7 @@ void ProcessingPyConf::callbackBeforeIRProc(IRBuilder *irb, AnalysisProcessor *a
 }
 
 
-void ProcessingPyConf::callbackFini(void)
-{
+void ProcessingPyConf::callbackFini(void) {
   // Check if there is a callback wich must be called at the end of the execution
   if (PyTritonOptions::callbackFini){
 
@@ -196,8 +188,7 @@ void ProcessingPyConf::callbackFini(void)
 }
 
 
-void ProcessingPyConf::callbackSignals(uint64 threadId, sint32 sig)
-{
+void ProcessingPyConf::callbackSignals(uint64 threadId, sint32 sig) {
   // Check if there is a callback wich must be called when a signal occurs
   if (PyTritonOptions::callbackSignals){
 
@@ -216,8 +207,7 @@ void ProcessingPyConf::callbackSignals(uint64 threadId, sint32 sig)
 }
 
 
-void ProcessingPyConf::callbackSyscallEntry(uint64 threadId, uint64 std)
-{
+void ProcessingPyConf::callbackSyscallEntry(uint64 threadId, uint64 std) {
   // Check if there is a callback wich must be called before the syscall processing
   if (PyTritonOptions::callbackSyscallEntry){
 
@@ -236,8 +226,7 @@ void ProcessingPyConf::callbackSyscallEntry(uint64 threadId, uint64 std)
 }
 
 
-void ProcessingPyConf::callbackSyscallExit(uint64 threadId, uint64 std)
-{
+void ProcessingPyConf::callbackSyscallExit(uint64 threadId, uint64 std) {
   // Check if there is a callback wich must be called after the syscall processing
   if (PyTritonOptions::callbackSyscallExit){
 
@@ -256,8 +245,7 @@ void ProcessingPyConf::callbackSyscallExit(uint64 threadId, uint64 std)
 }
 
 
-void ProcessingPyConf::applyConfBeforeProcessing(IRBuilder *irb)
-{
+void ProcessingPyConf::applyConfBeforeProcessing(IRBuilder *irb) {
   this->startAnalysisFromAddr(irb);
   this->startAnalysisFromOffset(irb);
   this->stopAnalysisFromAddr(irb);
@@ -269,8 +257,7 @@ void ProcessingPyConf::applyConfBeforeProcessing(IRBuilder *irb)
 }
 
 
-void ProcessingPyConf::callbackRoutine(uint64 threadId, PyObject *callback)
-{
+void ProcessingPyConf::callbackRoutine(uint64 threadId, PyObject *callback) {
   PyObject *args = xPyTuple_New(1);
   PyTuple_SetItem(args, 0, PyLong_FromLong(threadId));
   if (PyObject_CallObject(callback, args) == nullptr){

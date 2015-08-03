@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <python2.7/Python.h>
 
@@ -5,8 +11,7 @@
 #include <CpuSize.h>
 
 
-void initCpuSizeEnv(PyObject *idCpuSizeClassDict)
-{
+void initCpuSizeEnv(PyObject *idCpuSizeClassDict) {
   PyDict_SetItemString(idCpuSizeClassDict, "BYTE",        PyInt_FromLong(BYTE_SIZE));
   PyDict_SetItemString(idCpuSizeClassDict, "BYTE_BIT",    PyInt_FromLong(BYTE_SIZE_BIT));
   PyDict_SetItemString(idCpuSizeClassDict, "WORD",        PyInt_FromLong(WORD_SIZE));

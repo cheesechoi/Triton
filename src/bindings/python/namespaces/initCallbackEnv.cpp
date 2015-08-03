@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <python2.7/Python.h>
 
@@ -6,8 +12,7 @@
 #include <PythonBindings.h>
 
 
-void initCallbackEnv(PyObject *idCallbackClassDict)
-{
+void initCallbackEnv(PyObject *idCallbackClassDict) {
   PyDict_SetItemString(idCallbackClassDict, "AFTER", PyInt_FromLong(CB_AFTER));
   PyDict_SetItemString(idCallbackClassDict, "BEFORE", PyInt_FromLong(CB_BEFORE));
   PyDict_SetItemString(idCallbackClassDict, "BEFORE_SYMPROC", PyInt_FromLong(CB_BEFORE_SYMPROC));

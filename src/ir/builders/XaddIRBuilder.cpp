@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -19,22 +25,21 @@ void XaddIRBuilder::regImm(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void XaddIRBuilder::regReg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicExpression *se1, *se2;
-  smt2lib::smtAstAbstractNode *expr1, *expr2, *op1, *op2;
-  uint64 reg1          = this->operands[0].getValue();
-  uint64 reg2          = this->operands[1].getValue();
-  uint32 regSize1      = this->operands[0].getSize();
-  uint32 regSize2      = this->operands[1].getSize();
-  uint64 tmpReg1Taint  = ap.isRegTainted(reg1);
-  uint64 tmpReg2Taint  = ap.isRegTainted(reg2);
+  SymbolicExpression *se, *se1, *se2;
+  smt2lib::smtAstAbstractNode *expr, *expr1, *expr2, *op1, *op2;
+  auto reg1 = this->operands[0].getReg().getTritonRegId();
+  auto reg2 = this->operands[1].getReg().getTritonRegId();
+  auto regSize1 = this->operands[0].getReg().getSize();
+  auto regSize2 = this->operands[1].getReg().getSize();
+  auto tmpReg1Taint = ap.isRegTainted(reg1);
+  auto tmpReg2Taint = ap.isRegTainted(reg2);
 
-  /* Create the SMT semantic */
+  /* Part 1 - xchg expr */
   op1 = ap.buildSymbolicRegOperand(reg1, regSize1);
   op2 = ap.buildSymbolicRegOperand(reg2, regSize2);
 
-  // Final expr
   expr1 = op2;
-  expr2 = smt2lib::bvadd(op1, op2);
+  expr2 = op1;
 
   /* Create the symbolic expression */
   se1 = ap.createRegSE(inst, expr1, reg1, regSize1);
@@ -44,13 +49,27 @@ void XaddIRBuilder::regReg(AnalysisProcessor &ap, Inst &inst) const {
   ap.setTaintReg(se1, reg1, tmpReg2Taint);
   ap.setTaintReg(se2, reg2, tmpReg1Taint);
 
+  /* == == */
+
+  /* Part 2 - add expr */
+  op1 = ap.buildSymbolicRegOperand(reg1, regSize1);
+  op2 = ap.buildSymbolicRegOperand(reg2, regSize2);
+
+  expr = smt2lib::bvadd(op1, op2);
+
+  /* Create the symbolic expression */
+  se = ap.createRegSE(inst, expr, reg1, regSize1);
+
+  /* Apply the taint */
+  ap.aluSpreadTaintRegImm(se, reg1);
+
   /* Add the symbolic flags expression to the current inst */
-  EflagsBuilder::af(inst, se2, ap, regSize2, op1, op2);
-  EflagsBuilder::cfAdd(inst, se2, ap, regSize2, op1);
-  EflagsBuilder::ofAdd(inst, se2, ap, regSize2, op1, op2);
-  EflagsBuilder::pf(inst, se2, ap, regSize2);
-  EflagsBuilder::sf(inst, se2, ap, regSize2);
-  EflagsBuilder::zf(inst, se2, ap, regSize2);
+  EflagsBuilder::af(inst, se, ap, regSize2, op1, op2);
+  EflagsBuilder::cfAdd(inst, se, ap, regSize2, op1);
+  EflagsBuilder::ofAdd(inst, se, ap, regSize2, op1, op2);
+  EflagsBuilder::pf(inst, se, ap, regSize2);
+  EflagsBuilder::sf(inst, se, ap, regSize2);
+  EflagsBuilder::zf(inst, se, ap, regSize2);
 }
 
 
@@ -65,22 +84,21 @@ void XaddIRBuilder::memImm(AnalysisProcessor &ap, Inst &inst) const {
 
 
 void XaddIRBuilder::memReg(AnalysisProcessor &ap, Inst &inst) const {
-  SymbolicExpression *se1, *se2;
-  smt2lib::smtAstAbstractNode *expr1, *expr2, *op1, *op2;
-  uint64 mem1          = this->operands[0].getValue();
-  uint64 reg2          = this->operands[1].getValue();
-  uint32 memSize1      = this->operands[0].getSize();
-  uint32 regSize2      = this->operands[1].getSize();
-  uint64 tmpMem1Taint  = ap.isMemTainted(mem1);
-  uint64 tmpReg2Taint  = ap.isRegTainted(reg2);
+  SymbolicExpression *se, *se1, *se2;
+  smt2lib::smtAstAbstractNode *expr, *expr1, *expr2, *op1, *op2;
+  auto mem1 = this->operands[0].getMem().getAddress();
+  auto reg2 = this->operands[1].getReg().getTritonRegId();
+  auto memSize1 = this->operands[0].getMem().getSize();
+  auto regSize2 = this->operands[1].getReg().getSize();
+  auto tmpMem1Taint = ap.isMemTainted(mem1);
+  auto tmpReg2Taint = ap.isRegTainted(reg2);
 
-  /* Create the SMT semantic */
+  /* Part 1 - xchg expr */
   op1 = ap.buildSymbolicMemOperand(mem1, memSize1);
   op2 = ap.buildSymbolicRegOperand(reg2, regSize2);
 
-  // Final expr
   expr1 = op2;
-  expr2 = smt2lib::bvadd(op1, op2);
+  expr2 = op1;
 
   /* Create the symbolic expression */
   se1 = ap.createMemSE(inst, expr1, mem1, memSize1);
@@ -90,13 +108,27 @@ void XaddIRBuilder::memReg(AnalysisProcessor &ap, Inst &inst) const {
   ap.setTaintMem(se1, mem1, tmpReg2Taint);
   ap.setTaintReg(se2, reg2, tmpMem1Taint);
 
+  /* == == */
+
+  /* Part 2 - add expr */
+  op1 = ap.buildSymbolicMemOperand(mem1, memSize1);
+  op2 = ap.buildSymbolicRegOperand(reg2, regSize2);
+
+  expr = smt2lib::bvadd(op1, op2);
+
+  /* Create the symbolic expression */
+  se = ap.createMemSE(inst, expr, mem1, memSize1);
+
+  /* Apply the taint */
+  ap.aluSpreadTaintRegMem(se, reg2, mem1, memSize1);
+
   /* Add the symbolic flags expression to the current inst */
-  EflagsBuilder::af(inst, se2, ap, memSize1, op1, op2);
-  EflagsBuilder::cfAdd(inst, se2, ap, memSize1, op1);
-  EflagsBuilder::ofAdd(inst, se2, ap, memSize1, op1, op2);
-  EflagsBuilder::pf(inst, se2, ap, memSize1);
-  EflagsBuilder::sf(inst, se2, ap, memSize1);
-  EflagsBuilder::zf(inst, se2, ap, memSize1);
+  EflagsBuilder::af(inst, se, ap, memSize1, op1, op2);
+  EflagsBuilder::cfAdd(inst, se, ap, memSize1, op1);
+  EflagsBuilder::ofAdd(inst, se, ap, memSize1, op1, op2);
+  EflagsBuilder::pf(inst, se, ap, memSize1);
+  EflagsBuilder::sf(inst, se, ap, memSize1);
+  EflagsBuilder::zf(inst, se, ap, memSize1);
 }
 
 

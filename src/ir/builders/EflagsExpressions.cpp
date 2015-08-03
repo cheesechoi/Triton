@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <EflagsExpressions.h>
 #include <Registers.h>
@@ -299,35 +305,38 @@ smt2lib::smtAstAbstractNode *EflagsExpressions::cfShr(SymbolicExpression *parent
 
   /*
    * Create the SMT semantic.
-   * cf = ((op1 >> (op2 - 1)) & 1) if op2 != 0
+   * cf = ((op1 >> (bvSize - 1)) & 1) if op2 != 0
    */
   expr = smt2lib::ite(
             smt2lib::equal(op2, smt2lib::bv(0, bvSize)),
             ap.buildSymbolicFlagOperand(ID_CF),
-            smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(op2, smt2lib::bv(1, bvSize))))
+            smt2lib::extract(0, 0, smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize))))
           );
 
   return expr;
 }
 
 
-smt2lib::smtAstAbstractNode *EflagsExpressions::cfSub(smt2lib::smtAstAbstractNode *op1,
+smt2lib::smtAstAbstractNode *EflagsExpressions::cfSub(SymbolicExpression *parent,
+                                                      uint32 bvSize,
+                                                      smt2lib::smtAstAbstractNode *op1,
                                                       smt2lib::smtAstAbstractNode *op2)
 {
   smt2lib::smtAstAbstractNode *expr;
 
   /*
    * Create the SMT semantic.
-   * cf = op1 < op2
+   * cf = extract(bvSize, bvSize (((op1 ^ op2 ^ res) ^ ((op1 ^ res) & (op1 ^ op2)))))
    */
-  expr = smt2lib::ite(
-            smt2lib::bvult(
-              op1,
-              op2
-            ),
-            smt2lib::bv(1, 1),
-            smt2lib::bv(0, 1)
-          );
+  expr = smt2lib::extract(bvSize-1, bvSize-1,
+              smt2lib::bvxor(
+                smt2lib::bvxor(op1, smt2lib::bvxor(op2, smt2lib::extract(bvSize-1, 0, smt2lib::reference(parent->getID())))),
+                smt2lib::bvand(
+                  smt2lib::bvxor(op1, smt2lib::extract(bvSize-1, 0, smt2lib::reference(parent->getID()))),
+                  smt2lib::bvxor(op1, op2)
+                )
+              )
+            );
 
   return expr;
 }
@@ -580,9 +589,7 @@ smt2lib::smtAstAbstractNode *EflagsExpressions::ofShr(SymbolicExpression *parent
    */
   expr = smt2lib::ite(
             smt2lib::equal(op2, smt2lib::bv(1, bvSize)),
-            smt2lib::extract(0, 0,
-                smt2lib::bvlshr(op1, smt2lib::bvsub(smt2lib::bv(bvSize, bvSize), smt2lib::bv(1, bvSize)))
-            ),
+            smt2lib::extract(bvSize-1, bvSize-1, op1),
             ap.buildSymbolicFlagOperand(ID_OF)
           );
 

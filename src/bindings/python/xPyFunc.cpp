@@ -1,18 +1,22 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 
 #include <iostream>
 #include <xPyFunc.h>
 
 
 
-static void notEnoughMemory(void)
-{
+static void notEnoughMemory(void) {
   std::cerr << "[ERROR] Not enough memory for allocation" << std::endl;
   exit(-1);
 }
 
 
-PyObject *xPyDict_New(void)
-{
+PyObject *xPyDict_New(void) {
   PyObject *dict = PyDict_New();
   if (!dict)
     notEnoughMemory();
@@ -20,8 +24,7 @@ PyObject *xPyDict_New(void)
 }
 
 
-PyObject *xPyList_New(Py_ssize_t len)
-{
+PyObject *xPyList_New(Py_ssize_t len) {
   PyObject *list = PyList_New(len);
   if (!list)
     notEnoughMemory();
@@ -29,8 +32,7 @@ PyObject *xPyList_New(Py_ssize_t len)
 }
 
 
-PyObject *xPyTuple_New(Py_ssize_t len)
-{
+PyObject *xPyTuple_New(Py_ssize_t len) {
   PyObject *tuple = PyTuple_New(len);
   if (!tuple)
     notEnoughMemory();
@@ -38,8 +40,7 @@ PyObject *xPyTuple_New(Py_ssize_t len)
 }
 
 
-PyObject *xPyString_FromString(const char *v)
-{
+PyObject *xPyString_FromString(const char *v) {
   PyObject *s = PyString_FromString(v);
   if (!s)
     notEnoughMemory();
@@ -47,8 +48,7 @@ PyObject *xPyString_FromString(const char *v)
 }
 
 
-PyObject *xPyClass_New(PyObject *b, PyObject *d, PyObject *n)
-{
+PyObject *xPyClass_New(PyObject *b, PyObject *d, PyObject *n) {
   PyObject *c = PyClass_New(b, d, n);
   if (!c)
     notEnoughMemory();

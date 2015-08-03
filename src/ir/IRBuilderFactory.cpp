@@ -1,3 +1,9 @@
+/*
+**  Copyright (C) - Triton
+**
+**  This program is under the terms of the LGPLv3 License.
+*/
+
 #include <string>
 
 #include <pin.H>
@@ -475,74 +481,71 @@ IRBuilder *createIRBuilder(INS ins) {
       break;
   }
 
-  // Populate the operands
+  /* Populate the operands */
   const uint32 n = INS_OperandCount(ins);
 
   for (uint32 i = 0; i < n; ++i) {
-    IRBuilderOperand::operand_t type;
-    uint32 size = 0;
-    uint64 val  = 0;
 
-    //Effective address = Displacement + BaseReg + IndexReg * Scale
-    uint64 displacement = 0;
-    uint64 baseReg      = ID_INVALID;
-    uint64 indexReg     = ID_INVALID;
-    uint64 memoryScale  = 0;
+    TritonOperand op;
 
     /* Special case */
     if (INS_IsDirectBranchOrCall(ins)){
-      ir->addOperand(TritonOperand(IRBuilderOperand::IMM, INS_DirectBranchOrCallTargetAddress(ins), 0));
-      if (INS_MemoryOperandIsWritten(ins, 0))
-        ir->addOperand(TritonOperand(IRBuilderOperand::MEM_W, 0, INS_MemoryWriteSize(ins)));
+
+      TritonOperand op1;
+      op1.setType(IRBuilderOperand::IMM);
+      op1.setImm(ImmediateOperand(INS_DirectBranchOrCallTargetAddress(ins)));
+      ir->addOperand(op1);
+
+      if (INS_MemoryOperandIsWritten(ins, 0)) {
+        TritonOperand op2;
+        op2.setType(IRBuilderOperand::MEM_W);
+        op2.setMemSize(INS_MemoryWriteSize(ins));
+        ir->addOperand(op2);
+      }
+
       break;
     }
 
     /* Immediate */
     if (INS_OperandIsImmediate(ins, i)) {
-      type = IRBuilderOperand::IMM;
-      val = INS_OperandImmediate(ins, i);
+      op.setType(IRBuilderOperand::IMM);
+      op.setImm(ImmediateOperand(INS_OperandImmediate(ins, i)));
     }
 
     /* Register */
     else if (INS_OperandIsReg(ins, i)) {
-      type = IRBuilderOperand::REG;
-      REG reg = INS_OperandReg(ins, i);
-      val = PINConverter::convertDBIReg2TritonReg(reg); // store the register ID.
-      if (REG_valid(reg)) {
-        // check needed because instructions like "xgetbv 0" make
-        // REG_Size crash.
-        size = REG_Size(reg);
-      }
+      op.setType(IRBuilderOperand::REG);
+      op.setReg(RegisterOperand(INS_OperandReg(ins, i)));
     }
 
     /* Memory */
     else if (INS_MemoryOperandCount(ins) > 0) {
       /* Memory read */
       if (INS_MemoryOperandIsRead(ins, 0)) {
-        type = IRBuilderOperand::MEM_R;
-        size = INS_MemoryReadSize(ins);
+        op.setType(IRBuilderOperand::MEM_R);
+        op.setMemSize(INS_MemoryReadSize(ins));
       }
       /* Memory write */
       else {
-        type = IRBuilderOperand::MEM_W;
-        size = INS_MemoryWriteSize(ins);
+        op.setType(IRBuilderOperand::MEM_W);
+        op.setMemSize(INS_MemoryWriteSize(ins));
       }
     }
 
     /* load effective address instruction */
     else if (INS_OperandIsAddressGenerator(ins, i)) {
       REG reg;
-      type          = IRBuilderOperand::LEA;
-      displacement  = INS_OperandMemoryDisplacement(ins, i);
-      memoryScale   = INS_OperandMemoryScale(ins, i);
+      op.setType(IRBuilderOperand::LEA);
+      op.setDisplacement(ImmediateOperand(INS_OperandMemoryDisplacement(ins, i)));
+      op.setMemoryScale(ImmediateOperand(INS_OperandMemoryScale(ins, i)));
 
       reg = INS_OperandMemoryBaseReg(ins, i);
       if (REG_valid(reg))
-        baseReg = PINConverter::convertDBIReg2TritonReg(reg);
+        op.setBaseReg(RegisterOperand(reg));
 
       reg = INS_OperandMemoryIndexReg(ins, i);
       if (REG_valid(reg))
-        indexReg = PINConverter::convertDBIReg2TritonReg(reg);
+        op.setIndexReg(RegisterOperand(reg));
     }
 
     /* Undefined */
@@ -550,11 +553,12 @@ IRBuilder *createIRBuilder(INS ins) {
       // std::cout << "[DEBUG] Unknown kind of operand: " << INS_Disassemble(ins) << std::endl;
       continue;
     }
-    TritonOperand op = TritonOperand(type, val, size, displacement, baseReg, indexReg, memoryScale);
+
     op.setReadAndWrite(INS_OperandReadAndWritten(ins, i));
     op.setReadOnly(INS_OperandReadOnly(ins, i));
     op.setWriteOnly(INS_OperandWrittenOnly(ins, i));
     ir->addOperand(op);
+
   }
 
   // Setup the opcode in the IRbuilder
@@ -564,3 +568,4 @@ IRBuilder *createIRBuilder(INS ins) {
 
   return ir;
 }
+
