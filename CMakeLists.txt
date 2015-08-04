@@ -33,12 +33,20 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBIGARRAY_MULTIPLIER=1 -DTARGET_IA32E -DHOST_IA32E -DTARGET_MAC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fomit-frame-pointer -fno-strict-aliasing")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-exported_symbols_list")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Conventions
 add_definitions(-fPIC)
 add_definitions(-std=c++11)
+
+# Find boost
+find_package(Boost 1.53.0 COMPONENTS filesystem REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
+# Find Python 2.7
+FIND_PACKAGE(PythonLibs 2.7 REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
 
 # Includes directories (Pin and Triton)
 include_directories("${PIN_ROOT}/source/include/pin")
@@ -51,8 +59,11 @@ include_directories("./src/includes")
 # Libs directories (Pin)
 link_directories("${PIN_ROOT}/intel64/lib")
 link_directories("${PIN_ROOT}/intel64/lib-ext")
-link_directories("${PIN_ROOT}/intel64/runtime/glibc")
 link_directories("${PIN_ROOT}/extras/xed-intel64/lib")
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    link_directories("${PIN_ROOT}/intel64/runtime/glibc")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 # Triton have to generate a syscalls table from the kernel source
 # This following code tries to find the unistd_64.h header.
@@ -114,8 +125,8 @@ target_link_libraries(
     pindwarf
     dl
     z3
-    python2.7
-    boost_filesystem
+    ${PYTHON_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
 # Generate the triton's shortcut script
