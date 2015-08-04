@@ -1,11 +1,33 @@
-
 from triton import *
 import  smt2lib
 
 """
-on test.
+ root  ⋯  source  tools  Triton  ./triton cheese/script/getModelcheck.jle.jg.py cheese/example/getModelcheck.jle.jg.py b
+Address 0x400547 progress
+[+] Address <cmp argv[1][0] 0x41>
+{'SymVar_0': "0x50, 'P'"}
+{'SymVar_0': "0x60, '`'"}
+{'SymVar_0': "0x5a, 'Z'"}
+{'SymVar_0': "0x4a, 'J'"}
+{'SymVar_0': "0x42, 'B'"}
+{'SymVar_0': "0x62, 'b'"}
+{'SymVar_0': "0x6a, 'j'"}
+{'SymVar_0': "0x68, 'h'"}
+{'SymVar_0': "0x69, 'i'"}
+{'SymVar_0': "0x49, 'I'"}
 
-root@ubuntu:Triton# ./triton cheese/script/getModelcheck.range1.py cheese/example/getModelcheck.range1 a
+[+] Address <cmp argv[1][0] 0x59>
+{'SymVar_0': "0x50, 'P'"}
+{'SymVar_0': "0x59, 'Y'"}
+{'SymVar_0': "0x58, 'X'"}
+{'SymVar_0': "0x48, 'H'"}
+{'SymVar_0': "0x44, 'D'"}
+{'SymVar_0': "0x4c, 'L'"}
+{'SymVar_0': "0x54, 'T'"}
+{'SymVar_0': "0x49, 'I'"}
+{'SymVar_0': "0x4d, 'M'"}
+{'SymVar_0': "0x4f, 'O'"}
+
 nope!
 """
 
@@ -20,7 +42,7 @@ def cafter(instruction):
     if 0x400547 == instruction.getAddress():# == 0x400547:
         print "Address 0x400547 progress"
         raxId = getRegSymbolicID(IDREF.REG.RAX)
-        print convertExprToSymVar(raxId, 8) #only 8bit
+        convertExprToSymVar(raxId, 8) #only 8bit
 
 
     # 0x000000000040054d <+32>:  cmp    BYTE PTR [rbp-0x1],0x41 
@@ -37,14 +59,14 @@ def cafter(instruction):
         sfExpr = getFullExpression(getSymExpr(sfId).getAst())
         ofId = getRegSymbolicID(IDREF.FLAG.OF)
         ofExpr = getFullExpression(getSymExpr(ofId).getAst())
-
         
         listExpr.append(smt2lib.smtAssert(smt2lib.equal(zfExpr, smt2lib.bvfalse())))
         listExpr.append(smt2lib.smtAssert(smt2lib.equal(sfExpr, ofExpr)))
+ 
+        exprComp = smt2lib.compound(listExpr)
+        models = getModels(exprComp, 10)
         
-        test = smt2lib.compound(listExpr)
-        tests_models = getModels(test, 40)
-        for model in tests_models:
+        for model in models:
             print {k: "0x%x, '%c'" % (v, v) for k, v in model.items()}
         raw_input()
 
@@ -63,21 +85,15 @@ def cafter(instruction):
         ofId = getRegSymbolicID(IDREF.FLAG.OF)
         ofExpr = getFullExpression(getSymExpr(ofId).getAst())
 
+	exprJgNotJump = smt2lib.equal(smt2lib.bvor(smt2lib.bvxor(sfExpr,ofExpr), zfExpr), smt2lib.bvtrue())
+	listExpr.append( smt2lib.smtAssert(exprJgNotJump) )
         
-        #### [!!] expression test code.
-        testexpr = smt2lib.equal(zfExpr, smt2lib.bvtrue())                          # ZF = 1
-        testexpr2 = smt2lib.equal(smt2lib.bvxor(sfExpr, ofExpr), smt2lib.bvfalse()) # SF <> OF
-        testexpr3 = smt2lib.bvor(testexpr, testexpr2)                               # ( ZF = 1 ) or ( SF <> OF ), ERROR. 
-                                                                                    #(error "line 1 column 707: operator is applied to arguments of the wrong sort")
-        testexpr4 = smt2lib.equal(testexpr3, smt2lib.bvtrue())
-        testAssert = smt2lib.smtAssert(testexpr4)
-        tests_models = getModels(testAssert, 40)
-        for model in tests_models:
+	exprComp = smt2lib.compound(listExpr)
+	models = getModels(exprComp, 10)
+        for model in models:
             print {k: "0x%x, '%c'" % (v, v) for k, v in model.items()}
         raw_input()
  
-#def cfin(instruction):
-
 if __name__ == '__main__':
 
     startAnalysisFromSymbol('main')

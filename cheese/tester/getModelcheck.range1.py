@@ -19,7 +19,7 @@ def cafter(instruction):
     if 0x400547 == instruction.getAddress():# == 0x400547:
         print "Address 0x400547 progress"
         raxId = getRegSymbolicID(IDREF.REG.RAX)
-        print convertExprToSymVar(raxId, 8) #only 8bit
+        convertExprToSymVar(raxId, 64) #only 8bit
 
 
     #0x0000000000400553 <+38>:  cmp    BYTE PTR [rbp-0x1],0x59
@@ -55,18 +55,21 @@ def cafter(instruction):
         """
         
         #### [!!] expression test code.
-        testexpr = smt2lib.equal(zfExpr, smt2lib.bvtrue())                          # ZF = 1
-        testexpr2 = smt2lib.equal(smt2lib.bvxor(sfExpr, ofExpr), smt2lib.bvfalse()) # SF <> OF
-        testexpr3 = smt2lib.bvor(testexpr, testexpr2)                               # ( ZF = 1 ) or ( SF <> OF ), ERROR. 
+        #testexpr = smt2lib.equal(zfExpr, smt2lib.bvtrue())                          # ZF = 1
+        #testexpr2 = smt2lib.equal(smt2lib.bvxor(sfExpr, ofExpr), smt2lib.bvfalse()) # SF <> OF
+        #testexpr3 = smt2lib.bvor(testexpr, testexpr2)                               # ( ZF = 1 ) or ( SF <> OF ), ERROR. 
                                                                                     #(error "line 1 column 707: operator is applied to arguments of the wrong sort")
-        testexpr4 = smt2lib.equal(testexpr3, smt2lib.bvtrue())
-        testAssert = smt2lib.smtAssert(testexpr4)
+        #testexpr4 = smt2lib.equal(testexpr3, smt2lib.bvtrue())
+        #testAssert = smt2lib.smtAssert(testexpr4)
 
+        testexpr = smt2lib.equal( smt2lib.bvor(smt2lib.bvxor(sfExpr, ofExpr), zfExpr), smt2lib.bvtrue())
+        testAssert = smt2lib.smtAssert(testexpr)
         print testAssert
 
         tests_models = getModels(testAssert, 40)
-        for model in tests_models:
-            print {k: "0x%x, '%c'" % (v, v) for k, v in model.items()}
+        print tests_models
+        #for model in tests_models:
+        #    print {k: "0x%x, '%c'" % (v, v) for k, v in model.items()}
  
 #def cfin(instruction):
 
