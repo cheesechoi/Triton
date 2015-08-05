@@ -2,7 +2,7 @@ from triton import *
 import  smt2lib
 
 """
- root  ⋯  source  tools  Triton  ./triton cheese/script/getModelcheck.jle.jg.py cheese/example/getModelcheck.jle.jg.py b
+ root  ⋯  source  tools  Triton  ./triton cheese/script/getModelcheck.jle.jg.py cheese/example/getModelcheck.jle.jg b
 Address 0x400547 progress
 [+] Address <cmp argv[1][0] 0x41>
 {'SymVar_0': "0x50, 'P'"}
