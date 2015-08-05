@@ -6,25 +6,26 @@ ENDC  = "\033[0m"
 GREEN = "\033[92m"
 RED   = "\033[91m"
 
-# Output
-#
-# $ ./triton ./examples/semanticsTesting.py ./samples/ir_test_suite/ir
-# [...]
-# [OK] 0x400645: idiv rcx
-# [OK] 0x400648: mov rax, 0x1
-# [OK] 0x40064f: mov rcx, 0x2
-# [OK] 0x400656: mov rdx, 0x3
-# [OK] 0x40065d: mov rsi, 0x4
-# [OK] 0x400664: imul sil
-# [KO] 0x400667: imul cx (2 error)
-#      Register       : cf
-#      Symbolic Value : 0000000000000001
-#      Concrete Value : 0000000000000000
-#      Expression     : (ite (= ((_ extract 15 0) #348) ((_ extract 15 0) (_ bv2 64))) (_ bv0 1) (_ bv1 1))
-#      Register       : of
-#      Symbolic Value : 0000000000000001
-#      Concrete Value : 0000000000000000
-#      Expression     : (ite (= ((_ extract 15 0) #348) ((_ extract 15 0) (_ bv2 64))) (_ bv0 1) (_ bv1 1))
+"""
+ To check convertExprToSymVal() affect evaluateAST(expr)
+ Output
+
+ root > ⋯ Triton > ./triton ./cheese/tester/semanticsTesting.py ./samples/ir_test_suite/ir
+...
+[OK] 0x4006d8: bswap ecx
+[OK] 0x4006da: bswap rdx
+[OK] 0x4006dd: xor rcx, rcx
+[TESTING] 0x4006e0: mov cl, 0x3
+#516 = SymVar_0
+SymVar_0
+SymVar_0
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  smtAstVariableNode: UNSET
+  ./triton: line 20: 47458 Aborted                 (core dumped) $PIN_BIN_PATH -t $TRITON_LIB_PATH -script $1 -- ${@:2}
+...
+
+"""
+
 
 
 def sbefore(instruction):
@@ -35,10 +36,13 @@ def sbefore(instruction):
 
 def cafter(instruction):
 
-    if 0x4006f9 == instruction.getAddress():
+    # To check convertExprToSymVal() affect evaluateAST(expr)
+    _debug = 1
+
+    if _debug == 1 and 'mov cl, 0x3' == instruction.getDisassembly():
+        print "[%sTESTING%s] %#x: %s" %(BLUE, ENDC, instruction.getAddress(), instruction.getDisassembly())
         rcxId = getRegSymbolicID(IDREF.REG.RCX)
         convertExprToSymVar(rcxId, 8)
-
 
     bad  = list()
     regs = getRegs()
@@ -51,6 +55,14 @@ def cafter(instruction):
         if seid == IDREF.MISC.UNSET:
             continue
 
+        if _debug == 1 and 'mov cl, 0x3' == instruction.getDisassembly():
+            print getSymExpr(seid)
+            print getSymExpr(seid).getAst()
+            print getFullExpression(getSymExpr(seid).getAst())
+            expr   = getFullExpression(getSymExpr(seid).getAst())
+            print evaluateAST(expr)
+            print "test print done"
+        
         expr   = getFullExpression(getSymExpr(seid).getAst())
         svalue = evaluateAST(expr)
 
