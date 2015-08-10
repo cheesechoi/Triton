@@ -22,13 +22,15 @@ strip 되어 있거나 함수의 이름을 모르는 경우에는 주소값으�
 **triton.startAnalysysFromAddr(<주소>) / triton.stopAnalysysFromAddr(<주소>)**
 
 ###콜백함수
-메인에서는 3가지 유형의 콜백 함수를 등록할 수 있다(BEFORE, AFTER, FIN). 주로 BEFORE / AFTER 를 많이 사용하며 FIN 은 추후 설명.
+메인에서는 3가지 유형의 콜백 함수를 등록할 수 있다(BEFORE, AFTER, FIN). 주로 BEFORE / AFTER 를 많이 사용하며 FIN 은 추후 추가 설명.
 
 기본적으로 콜백 함수의 argument 는 instruction 이 들어가는데, 이 instruction 객체를 통해 어셈코드를 얻거나, 레지스터 값을 얻거나, 각종 원하는 짓거리를 다 할 수 있다. instruction 객체를 자유자재로 쓰는 것이 매우 중요하다. instruction 은 따로 설명이 필요할 것이다.
 
 3가지 콜백은 이름 그대로.. BEFORE 는 instruction 실행 전에, AFTER 는 instruction 실행 후이며, FIN 은 **startAnalysisFromSymbol** 혹은 **startAnalysysFromAddress** 로 지정한 모든 분석이 끝난 후에 실행된다.
 
 instruction 객체가 제공하는 **GetRegValue()** 또는 **getRegs()** 를 BEFORE 콜백과 AFTER 콜백에 동일하게 넣고 실행해보면 레지스터 값의 변화를 모니터링 할 수 있다.
+
+
 
 
 
